@@ -2,67 +2,137 @@
 <html>
 <head>
   <title>A D3 map</title>
-  <script src='https://d3js.org/d3.v4.min.js'></script>
+  <script src='https://d3js.org/d3.v5.min.js'></script>
   <script src='js/neighborhoods.js'></script>
+  <script src='js/locations.js'></script>
+  <style>
+      svg {
+          padding-top: 50px;
+          display: block;
+          margin: auto;
+      }
+      h2 {
+          text-align: center;
+          font: 30px sans-serif;
+      }
+      text {
+          font: 15px sans-serif;
+          fill: #1f77b4;
+      }
+  </style>
 </head>
 <body>
+    <h2>Map of North Boston</h2>
   <script>
+    var cab_data;
+    window.onload = function() {
+        d3.csv('./data/clean_cab_rides.csv')    
+            .then(function(data) {
+                cab_data = data
+                build()
+            })
+
     var width = 700,
         height = 580;
 
-    var svg = d3.select('body')
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height);
+    function build() {
+        var svg = d3.select('body')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+    
+        svg.append('rect')
+            .attr('width', '100%')
+            .attr('height', '100%')
+            .attr('fill', 'lightblue')
+    
+        // draw map of boston
+        var g = svg.append('g');
+    
+        // zoom into map to show the points we drew more clearly
+        var albersProjection = d3.geoAlbers()
+        .scale(780000)
+        .rotate([71.057, 0])
+        .center([-.021, 42.353])
+        .translate([width/2, height/2]);
+    
+        var geoPath = d3.geoPath()
+            .projection(albersProjection);
+    
+        g.selectAll('path')
+        .data(neighborhoods_json.features)
+        .enter()
+        .append('g')
+        .append('path')
+        .attr('fill', '#c9d3cd')
+        .attr('d', geoPath)
+        .style("stroke", "#fff")
+        .style("stroke-width", "1.2")
+    
+        // draw locations using circles from cab data on map
+        var locations = svg.append('g');
+    
+        locations.selectAll('circle')
+            .data(locations_json.features)
+            .enter()
+            .append('g')
+            .on('mouseover', function(d) {
+                d3.select(this)
+                    .attr('fill', 'brown')
+                    .append('text')
+                        .text((d) => d.Name)
+                        .attr('x', (d) => +albersProjection(d.geometry.coordinates)[0] - 40)
+                        .attr('y', (d) => +albersProjection(d.geometry.coordinates)[1] - 25)
+                addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json)
+            })
+            .on('mouseout', function(d){
+                d3.select('text').remove()
+                d3.select('#lines').remove()
+            })
+            .append('circle')
+            .attr('fill', '#1f77b4')
+            .attr('r', 13)
+            .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
+            .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1])
+            .on('mouseover', function(d) {
+                d3.select(this)
+                    .attr('fill', 'brown')
+            })
+            .on('mouseout', function(d) {
+                d3.select(this)
+                    .attr('fill', '#1f77b4')
+            });
+    }
 
-    var g = svg.append('g');
+    // draws lines from origin to destination, line width is  determined by number of rides
+    // from->to origin to destination
+    function addLines(svg, name, origin, projection, loc_json) {
+        // filter data based on selected location
+        data = cab_data.filter((d) => d.source == name)
 
-    var albersProjection = d3.geoAlbers()
-    .scale(190000)
-    .rotate([71.057, 0])
-    .center([0, 42.313])
-    .translate([width/2, height/2]);
-
-    var geoPath = d3.geoPath()
-        .projection(albersProjection);
-
-    g.selectAll('path')
-    .data(neighborhoods_json.features)
-    .enter()
-    .append('path')
-    .attr('fill', '#ccc')
-    .attr('d', geoPath)
-    .on('mouseover', function(d) {
-        d3.select(this)
-            .attr('fill', 'brown')
-        console.log(d.properties.Name)
-    })
-    .on('mouseout', function() {
-        d3.select(this)
-            .attr('fill', '#ccc')
-    });
-
-    // var rodents = svg.append('g');
-
-    // rodents.selectAll('path')
-    // .data(rodents_json.features)
-    // .enter()
-    // .append('path')
-    // .attr('fill', '#900')
-    // .attr('stroke', '#999')
-    // .attr('d', geoPath)
-    // .on('click', function(){
-    //     d3.select(this)
-    //         .attr('opacity', 1)
-    //         .transition()
-    //         .duration(200)
-    //         .attr('x', width * Math.round(Math.random()))
-    //         .attr('y', height * Math.round(Math.random()))
-    //         .attr('opacity', 0)
-    //         .on('end', function(){
-    //             d3.select(this).remove();
-    //         })
-    // });
+        // rollup data to get sum of rides from location to destinations
+        var rides = d3.nest()
+        .key(function(d) { return d.destination; })
+        .rollup(function(v) { return v.length; })
+        .entries(data);
+        
+        // draw lines to destinations
+        var lines = svg.append('g')
+            .attr('id', 'lines');
+        
+        lines.selectAll('line')
+            .data(rides)
+            .enter()
+            .append('line')
+                .attr('fill', 'red')
+                .attr('x1', +projection(origin)[0] - 3)
+                .attr('y1', +projection(origin)[1] - 3)
+                .attr('x2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
+                .attr('y2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1])
+                .attr('stroke', 'red')
+                .attr('stroke-width', (d) => +d.value / 1000)
+    }
+    }
   </script>
 </body>
 </html>
