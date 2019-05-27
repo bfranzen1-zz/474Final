@@ -32,9 +32,10 @@
     .append('path')
     .attr('fill', '#ccc')
     .attr('d', geoPath)
-    .on('mouseover', function() {
+    .on('mouseover', function(d) {
         d3.select(this)
             .attr('fill', 'brown')
+        console.log(d.properties.Name)
     })
     .on('mouseout', function() {
         d3.select(this)
