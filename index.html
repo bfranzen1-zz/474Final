@@ -45,7 +45,9 @@
     <script>
         var cab_data;
         var current_data;
-        var all_prices = [];
+        var allPriceAvgs = [];
+        var allLocationAvgs;
+        var svg;
 
         // Create scale for color gradient
         var max_area;
@@ -88,6 +90,7 @@
                             } else {
                                 current_data = cab_data.filter((row) => row['Day of Week'] == value);
                             }
+                            build()
                         });
 
                     // Append dropdown to filter by time of day
@@ -106,13 +109,21 @@
                             } else {
                                 current_data = cab_data.filter((row) => row['Time Of Day'] == value);
                             }
+                            build()
                         });
                     cab_data = data
                     current_data = cab_data
                     // Get prices isolated to be able to build gradient
-                    cab_data.forEach((d) => {
-                        all_prices.push(d.price);
+                    d3.nest()
+                    .key(function (d) { return d.destination; })
+                    .rollup(function (v) {
+                        allPriceAvgs.push(d3.mean(v, (e) => e.price))
+                        return {
+                            avg: d3.mean(v, (e) => e.price)
+                        }
                     })
+                    .entries(current_data);
+                    console.log(allPriceAvgs)
 
                     // Add options to dropdowns
                     let distinctDays = ["All Days Data", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -150,29 +161,29 @@
 
 
             function build() {
-
-                // Create scale for color gradient
-                max_area = d3.max(all_prices);
-                min_area = d3.min(all_prices);
-                mean_area = d3.mean(all_prices);
-                color_scale = d3.scaleLinear().domain([min_area, mean_area, max_area - 40]).range(['green', 'beige', 'red']);
-
-                var allLocationAvgs = d3.nest()
+                d3.select('#svg').remove();
+                allLocationAvgs = d3.nest()
                     .key(function (d) { return d.destination; })
                     .rollup(function (v) {
                         return {
                             avg: d3.mean(v, (e) => e.price)
                         }
                     })
-                    .entries(cab_data);
+                    .entries(current_data);
 
                 console.log(allLocationAvgs);
 
+                // Create scale for color gradient
+                max_area = d3.max(allPriceAvgs);
+                min_area = d3.min(allPriceAvgs);
+                mean_area = d3.mean(allPriceAvgs);
+                color_scale = d3.scaleLinear().domain([min_area - 5, mean_area, max_area + 5]).range(['green', 'beige', 'red']);
 
-                var svg = d3.select('body')
+                svg = d3.select('body')
                     .append('svg')
                     .attr('width', width)
-                    .attr('height', height);
+                    .attr('height', height)
+                    .attr('id', 'svg');
 
                 svg.append('rect')
                     .attr('width', '100%')
@@ -235,7 +246,7 @@
 
                 var y = d3.scaleLinear()
                     .range([300, 0])
-                    .domain([max_area, min_area]);
+                    .domain([max_area + 5, min_area - 5]);
 
 
                 var yAxis = d3.axisBottom()
@@ -266,6 +277,10 @@
                     .append('g')
                     .append('circle')
                     .attr('id', (d) => d.Name.split(" ").join(""))
+                    .attr('fill', (d) => {
+                                var avg = getAvg(d.Name, allLocationAvgs);
+                                return color_scale(avg);
+                            })
                     .on('mouseover', function (d) {
                         addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines)
                         d3.select(this)
@@ -284,10 +299,6 @@
                             })
                     })
                     .transition().duration(400)
-                    .attr('fill', (d) => {
-                                var avg = getAvg(d.Name, allLocationAvgs);
-                                return color_scale(avg);
-                            })
                     .attr('r', 13)
                     .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
                     .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1]);
