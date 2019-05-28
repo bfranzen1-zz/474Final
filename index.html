@@ -18,8 +18,13 @@
             font: 30px sans-serif;
         }
 
-        text {
-            font: 15px sans-serif;
+        #loadingText {
+            text-align: center;
+            margin: auto;
+        }
+
+        g text {
+            font: 12px sans-serif;
             fill: #1f77b4;
         }
 
@@ -261,13 +266,14 @@
                     .scale(y)
                     .ticks(6);
 
+                // add label for gradient scale
                 svg.append("g")
                     .attr("class", "y axis")
                     .attr("transform", "translate(0,30)")
                     .call(yAxis)
                     .append("text")
                     .attr("y", 25)
-                    .attr("x", 150)
+                    .attr("x", 165)
                     .attr("dy", "1em")
                     .style("text-anchor", "end")
                     .text("Average Price in Dollars");
@@ -288,17 +294,14 @@
                     .attr('fill', (d) => {
                                 var avg = getAvg(d.Name, allLocationAvgs);
                                 return color_scale(avg);
-                            })
+                    }) // add lines and change color of referenced circle
                     .on('mouseover', function (d) {
-                        addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines)
-                        d3.select(this)
-                            .attr('fill', 'brown')
-                    })
+                        addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines, locations)
+                        d3.select(this).style('fill', 'brown')
+                    }) // remove lines/text and reset colors
                     .on('mouseout', function (d) {
-                        d3.select('.locText').remove();
+                        d3.selectAll('.locText').remove();
                         d3.select('#lines').html("");
-                        d3.select(this)
-                            .attr('fill', '#1f77b4')
                         d3.selectAll('circle')
                             .transition().duration(200)
                             .style('fill', (d) => {
@@ -314,6 +317,8 @@
 
             }
 
+            // function that gets the average the a specific name location using the 
+            // passed data
             function getAvg(name, data) {
                 let avg = 11;
                 data.forEach((location) => {
@@ -326,6 +331,7 @@
                 return avg;
             }
 
+            // properly scale lines based on average rides
             function scaleLines(loc, data) {
                 let rideData = data.map((row) => row.value.value);
                 let rideLimits = d3.extent(rideData);
@@ -339,7 +345,7 @@
 
             // draws lines from origin to destination, line width is  determined by number of rides
             // from->to origin to destination
-            function addLines(svg, name, origin, projection, loc_json, object, lines) {
+            function addLines(svg, name, origin, projection, loc_json, object, lines, circles) {
                 // filter data based on selected location
                 data = current_data.filter((d) => d.source == name)
 
@@ -354,6 +360,7 @@
                     })
                     .entries(data);
 
+                // change color of destination circles to match line
                 for (k in Object.keys(rides)) {
                     d3.select('#' + rides[k].key.split(" ").join(""))
                         .transition().duration(200)
@@ -367,9 +374,9 @@
                 elem.enter()
                     .append('g')
                     .append('line')
-                    .transition().duration(400)
                     .attr('x1', +projection(origin)[0])
                     .attr('y1', +projection(origin)[1])
+                    .transition().duration(400)
                     .attr('x2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
                     .attr('y2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1])
                     .attr('stroke', function (d) {
@@ -377,16 +384,16 @@
                     })
                     .attr('stroke-width', (d) => (scaleLines(d, rides)))
 
-                elem.enter()
+                // draw labels for destinations over circles
+                circles.selectAll('text').data(rides).enter()
                     .append('text')
-                    .transition().duration(400)
-                    .attr("dy", ".75em")
-                    .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
+                    .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
                     .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
                     .attr("class", "locText")
+                    .transition().duration(400)
                     .text((d) => loc_json.features[numToLoc[d.key]].Name)
 
-
+                // draw label for source location
                 lines.append("text")
                     .attr("dy", ".75em")
                     .attr("x", +albersProjection(origin)[0] - 40)
