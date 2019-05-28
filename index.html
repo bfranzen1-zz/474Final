@@ -142,9 +142,7 @@
                         })
                         .entries(cab_data);
 
-                    console.log(allLocationAvgs);
-
-
+                    // build points    
                     build()
                 })
 
@@ -239,8 +237,6 @@
                     .range([300, 0])
                     .domain([max_area, min_area]);
 
-                console.log(max_area)
-                console.log(min_area)
                 var yAxis = d3.axisBottom()
                     .scale(y)
                     .ticks(6);
