@@ -32,11 +32,16 @@
             text-align: center;
             margin: 10px;
         }
+
+        #loadingText {
+            text-align: center;
+            margin: auto;
+        }
     </style>
 </head>
 
 <body>
-    <h2>Map of North Boston</h2>
+    <h2>Map of Boston</h2>
     <script>
         var cab_data;
         var current_data;
@@ -52,44 +57,52 @@
         var timeSelect = ""
 
         window.onload = function () {
-            // Append dropdown to filter by weekday
-            daySelect = d3.select("body")
-                .append("div")
-                .attr('id', 'selectDayHolder')
-                .append("text")
-                .text("Day of Week ")
-                .attr('id', 'day')
-                .append("select")
-                .attr('id', 'dropdown')
-                .on("change", function (d) {
-                    let value = d3.select(this).property("value");
-                    if (value == "All Days Data") {
-                        current_data = cab_data;
-                    } else {
-                        current_data = cab_data.filter((row) => row['Day of Week'] == value);
-                    }
-                });
 
-            // Append dropdown to filter by time of day
-            timeSelect = d3.select("body")
+            d3.select("body")
                 .append("div")
-                .attr('id', 'selectTimeHolder')
-                .append("text")
-                .text("Time of Day ")
-                .attr('id', 'time')
-                .append("select")
-                .attr('id', 'dropdown')
-                .on("change", function (d) {
-                    let value = d3.select(this).property("value");
-                    if (value == "All Time Data") {
-                        current_data = current_data;
-                    } else  {
-                        current_data = cab_data.filter((row) => row['Time Of Day'] == value);
-                    }
-                });
+                .attr('id', 'loadingText')
+                .append('text')
+                .text('Loading...')
+                .attr('class', 'loading')
 
             d3.csv('./data/clean_cab_rides.csv')
                 .then(function (data) {
+                    d3.select('#loadingText').remove()
+                    // Append dropdown to filter by weekday
+                    daySelect = d3.select("body")
+                        .append("div")
+                        .attr('id', 'selectDayHolder')
+                        .append("text")
+                        .text("Day of Week ")
+                        .attr('id', 'day')
+                        .append("select")
+                        .attr('id', 'dropdown')
+                        .on("change", function (d) {
+                            let value = d3.select(this).property("value");
+                            if (value == "All Days Data") {
+                                current_data = cab_data;
+                            } else {
+                                current_data = cab_data.filter((row) => row['Day of Week'] == value);
+                            }
+                        });
+
+                    // Append dropdown to filter by time of day
+                    timeSelect = d3.select("body")
+                        .append("div")
+                        .attr('id', 'selectTimeHolder')
+                        .append("text")
+                        .text("Time of Day ")
+                        .attr('id', 'time')
+                        .append("select")
+                        .attr('id', 'dropdown')
+                        .on("change", function (d) {
+                            let value = d3.select(this).property("value");
+                            if (value == "All Time Data") {
+                                current_data = current_data;
+                            } else {
+                                current_data = cab_data.filter((row) => row['Time Of Day'] == value);
+                            }
+                        });
                     cab_data = data
                     current_data = cab_data
                     // Get prices isolated to be able to build gradient
