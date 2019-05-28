@@ -55,9 +55,10 @@
 
         var daySelect = ""
         var timeSelect = ""
+        var gradientScale = ""
 
         window.onload = function () {
-
+            // Append "Loading..." text to the body
             d3.select("body")
                 .append("div")
                 .attr('id', 'loadingText')
@@ -67,7 +68,10 @@
 
             d3.csv('./data/clean_cab_rides.csv')
                 .then(function (data) {
+
+                    // Remove "Loading..." text after data loads
                     d3.select('#loadingText').remove()
+
                     // Append dropdown to filter by weekday
                     daySelect = d3.select("body")
                         .append("div")
@@ -129,6 +133,17 @@
                         .property("selected", function (d) { return d === 'All Time Data' })
                         .text(function (d) { return d; });
 
+                    var allLocationAvgs = d3.nest()
+                        .key(function (d) { return d.destination; })
+                        .rollup(function (v) {
+                            return {
+                                avg: d3.mean(v, (e) => e.price)
+                            }
+                        })
+                        .entries(cab_data);
+
+                    console.log(allLocationAvgs);
+
 
                     build()
                 })
@@ -142,6 +157,7 @@
                 .rotate([71.057, 0])
                 .center([-.021, 42.353])
                 .translate([width / 2, height / 2]);
+
 
 
             function build() {
@@ -181,6 +197,64 @@
                     .attr('d', geoPath)
                     .style("stroke", "#fff")
                     .style("stroke-width", "1.2")
+
+
+                // Add gradient scale
+                var legend = svg.append("defs")
+                    .append("svg:linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "100%")
+                    .attr("x2", "100%")
+                    .attr("y2", "100%")
+                    .attr("spreadMethod", "pad");
+
+                legend.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", "green")
+                    .attr("stop-opacity", 1);
+
+                legend.append("stop")
+                    .attr("offset", "50%")
+                    .attr("stop-color", "beige")
+                    .attr("stop-opacity", 1);
+
+                legend.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", "red")
+                    .attr("stop-opacity", 1);
+
+                // legend.append("stop")
+                //     .attr("offset", "100%")
+                //     .attr("stop-color", "#084081")
+                //     .attr("stop-opacity", 1);
+
+                svg.append("rect")
+                    .attr("width", 300)
+                    .attr("height", 50 - 30)
+                    .style("fill", "url(#gradient)")
+                    .attr("transform", "translate(0,10)");
+
+                var y = d3.scaleLinear()
+                    .range([300, 0])
+                    .domain([max_area, min_area]);
+
+                console.log(max_area)
+                console.log(min_area)
+                var yAxis = d3.axisBottom()
+                    .scale(y)
+                    .ticks(6);
+
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", "translate(0,30)")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("y", 25)
+                    .attr("x", 150)
+                    .attr("dy", "1em")
+                    .style("text-anchor", "end")
+                    .text("Price Scale in Dollars");
 
                 // draw locations using circles from cab data on map
                 var lines = svg.append('g')
@@ -243,8 +317,7 @@
                     .attr('stroke', function (d) {
                         return color_scale(d.value.avg);
                     })
-                    .attr('stroke-width', 10)
-                // .attr('stroke-width', (d) => +d.value.value / 1000)
+                    .attr('stroke-width', (d) => +d.value.value / 1000)
 
                 elem.enter()
                     .append('text')
