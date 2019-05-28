@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>A D3 map</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <script src='js/neighborhoods.js'></script>
+    <script src='js/locations.js'></script>
+    <style>
+        svg {
+            padding-top: 50px;
+            display: block;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            font: 30px sans-serif;
+        }
+
+        text {
+            font: 15px sans-serif;
+            fill: #1f77b4;
+        }
+
+        #selectDayHolder {
+            text-align: center;
+            margin: auto;
+        }
+
+        #selectTimeHolder {
+            text-align: center;
+            margin: 10px;
+        }
+
+        #loadingText {
+            text-align: center;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Map of Boston</h2>
+    <script>
+        var cab_data;
+        var current_data;
+        var all_prices = [];
+
+        // Create scale for color gradient
+        var max_area;
+        var min_area;
+        var median;
+        var color_scale;
+
+        var daySelect = ""
+        var timeSelect = ""
+
+        window.onload = function () {
+
+            d3.select("body")
+                .append("div")
+                .attr('id', 'loadingText')
+                .append('text')
+                .text('Loading...')
+                .attr('class', 'loading')
+
+            d3.csv('./data/clean_cab_rides.csv')
+                .then(function (data) {
+                    d3.select('#loadingText').remove()
+                    // Append dropdown to filter by weekday
+                    daySelect = d3.select("body")
+                        .append("div")
+                        .attr('id', 'selectDayHolder')
+                        .append("text")
+                        .text("Day of Week ")
+                        .attr('id', 'day')
+                        .append("select")
+                        .attr('id', 'dropdown')
+                        .on("change", function (d) {
+                            let value = d3.select(this).property("value");
+                            if (value == "All Days Data") {
+                                current_data = cab_data;
+                            } else {
+                                current_data = cab_data.filter((row) => row['Day of Week'] == value);
+                            }
+                        });
+
+                    // Append dropdown to filter by time of day
+                    timeSelect = d3.select("body")
+                        .append("div")
+                        .attr('id', 'selectTimeHolder')
+                        .append("text")
+                        .text("Time of Day ")
+                        .attr('id', 'time')
+                        .append("select")
+                        .attr('id', 'dropdown')
+                        .on("change", function (d) {
+                            let value = d3.select(this).property("value");
+                            if (value == "All Time Data") {
+                                current_data = current_data;
+                            } else {
+                                current_data = cab_data.filter((row) => row['Time Of Day'] == value);
+                            }
+                        });
+                    cab_data = data
+                    current_data = cab_data
+                    // Get prices isolated to be able to build gradient
+                    cab_data.forEach((d) => {
+                        all_prices.push(d.price);
+                    })
+
+                    // Add options to dropdowns
+                    let distinctDays = ["All Days Data", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                    daySelect.selectAll("option")
+                        .data(distinctDays)
+                        .enter()
+                        .append("option")
+                        .attr("value", function (d) { return d; })
+                        .property("selected", function (d) { return d === 'All Days Data' })
+                        .text(function (d) { return d; });
+
+                    let times = ["All Time Data", "Morning", "Afternoon", "Evening", "Night"]
+                    timeSelect.selectAll("option")
+                        .data(times)
+                        .enter()
+                        .append("option")
+                        .attr("value", function (d) { return d; })
+                        .property("selected", function (d) { return d === 'All Time Data' })
+                        .text(function (d) { return d; });
+
+
+                    build()
+                })
+
+            var width = 700,
+                height = 580;
+
+            // zoom into map to show the points we drew more clearly
+            var albersProjection = d3.geoAlbers()
+                .scale(780000)
+                .rotate([71.057, 0])
+                .center([-.021, 42.353])
+                .translate([width / 2, height / 2]);
+
+
+            function build() {
+
+                // Create scale for color gradient
+                max_area = d3.max(all_prices);
+                min_area = d3.min(all_prices);
+                mean_area = d3.mean(all_prices);
+                color_scale = d3.scaleLinear().domain([min_area, mean_area, max_area - 40]).range(['green', 'beige', 'red']);
+
+
+
+
+                var svg = d3.select('body')
+                    .append('svg')
+                    .attr('width', width)
+                    .attr('height', height);
+
+                svg.append('rect')
+                    .attr('width', '100%')
+                    .attr('height', '100%')
+                    .attr('fill', 'lightblue')
+
+                // draw map of boston
+                var g = svg.append('g');
+
+
+                var geoPath = d3.geoPath()
+                    .projection(albersProjection);
+
+                g.selectAll('path')
+                    .data(neighborhoods_json.features)
+                    .enter()
+                    .append('g')
+                    .append('path')
+                    .attr('fill', '#c9d3cd')
+                    .attr('d', geoPath)
+                    .style("stroke", "#fff")
+                    .style("stroke-width", "1.2")
+
+                // draw locations using circles from cab data on map
+                var lines = svg.append('g')
+                    .attr('id', 'lines');
+
+                var locations = svg.append('g')
+                    .attr('id', 'circles');
+
+                locations.selectAll('circle')
+                    .data(locations_json.features)
+                    .enter()
+                    .append('g')
+                    .on('mouseover', function (d) {
+                        addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines)
+                        d3.select(this)
+                            .attr('fill', 'brown')
+                        // .append('text')
+                        //     .text((d) => d.Name)
+                        //     .attr('x', (d) => +albersProjection(d.geometry.coordinates)[0] - 40)
+                        //     .attr('y', (d) => +albersProjection(d.geometry.coordinates)[1] - 25)
+
+                    })
+                    .on('mouseout', function (d) {
+                        d3.select('.locText').remove();
+                        d3.select('#lines').html("");
+                    })
+                    .append('circle')
+                    .attr('fill', '#1f77b4')
+                    .attr('r', 13)
+                    .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
+                    .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1])
+                    .on('mouseover', function (d) {
+                        d3.select(this)
+                            .attr('fill', 'brown')
+                    })
+                    .on('mouseout', function (d) {
+                        d3.select(this)
+                            .attr('fill', '#1f77b4')
+                    });
+            }
+
+            // draws lines from origin to destination, line width is  determined by number of rides
+            // from->to origin to destination
+            function addLines(svg, name, origin, projection, loc_json, object, lines) {
+                // filter data based on selected location
+                data = current_data.filter((d) => d.source == name)
+
+                // rollup data to get sum of rides from location to destinations
+                var rides = d3.nest()
+                    .key(function (d) { return d.destination; })
+                    .rollup(function (v) {
+                        return {
+                            value: v.length,
+                            avg: d3.mean(v, (e) => e.price)
+                        }
+                    })
+                    .entries(data);
+                console.log(rides);
+                // draw lines to destinations
+                lines.selectAll('line')
+                    .data(rides)
+                    .enter()
+                    .append('line')
+                    .attr('x1', +projection(origin)[0])
+                    .attr('y1', +projection(origin)[1])
+                    .attr('x2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
+                    .attr('y2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1])
+                    .attr('stroke', function (d) {
+                        return color_scale(d.value.avg);
+                    })
+                    .attr('stroke-width', 10)
+                // .attr('stroke-width', (d) => +d.value.value / 1000)
+
+                lines.append("text")
+                    .attr("dy", ".75em")
+                    .attr("x", +albersProjection(origin)[0] - 40)
+                    .attr("y", +albersProjection(origin)[1] - 25)
+                    .attr("class", "locText")
+                    .text(name)
+            }
+        }
+    </script>
+</body>
+
+</html>
