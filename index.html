@@ -193,34 +193,23 @@
                     .data(locations_json.features)
                     .enter()
                     .append('g')
+                    .append('circle')
                     .on('mouseover', function (d) {
                         addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines)
                         d3.select(this)
                             .attr('fill', 'brown')
-                        // .append('text')
-                        //     .text((d) => d.Name)
-                        //     .attr('x', (d) => +albersProjection(d.geometry.coordinates)[0] - 40)
-                        //     .attr('y', (d) => +albersProjection(d.geometry.coordinates)[1] - 25)
-
                     })
                     .on('mouseout', function (d) {
                         d3.select('.locText').remove();
                         d3.select('#lines').html("");
+                        d3.select(this)
+                            .attr('fill', '#1f77b4')
                     })
-                    .append('circle')
                     .transition().duration(400)
                     .attr('fill', '#1f77b4')
                     .attr('r', 13)
                     .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
-                    .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1])
-                    .on('mouseover', function (d) {
-                        d3.select(this)
-                            .attr('fill', 'brown')
-                    })
-                    .on('mouseout', function (d) {
-                        d3.select(this)
-                            .attr('fill', '#1f77b4')
-                    });
+                    .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1]);
             }
 
             // draws lines from origin to destination, line width is  determined by number of rides
