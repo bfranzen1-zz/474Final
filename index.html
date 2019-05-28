@@ -278,7 +278,10 @@
                             .attr('fill', '#1f77b4')
                         d3.selectAll('circle')
                             .transition().duration(200)
-                            .style('fill', '#1f77b4')
+                            .style('fill', (d) => {
+                                var avg = getAvg(d.Name, allLocationAvgs);
+                                return color_scale(avg);
+                            })
                     })
                     .transition().duration(400)
                     .attr('fill', (d) => {
@@ -298,8 +301,6 @@
                     let loc = location.key;
                     
                     if (loc === name) {
-                        console.log(loc);
-                        console.log(location.value.avg);
                         avg = location.value.avg;
                     }
                 })
