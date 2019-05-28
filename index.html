@@ -133,17 +133,6 @@
                         .property("selected", function (d) { return d === 'All Time Data' })
                         .text(function (d) { return d; });
 
-                    var allLocationAvgs = d3.nest()
-                        .key(function (d) { return d.destination; })
-                        .rollup(function (v) {
-                            return {
-                                avg: d3.mean(v, (e) => e.price)
-                            }
-                        })
-                        .entries(cab_data);
-
-                    console.log(allLocationAvgs);
-
 
                     build()
                 })
@@ -168,7 +157,16 @@
                 mean_area = d3.mean(all_prices);
                 color_scale = d3.scaleLinear().domain([min_area, mean_area, max_area - 40]).range(['green', 'beige', 'red']);
 
+                var allLocationAvgs = d3.nest()
+                    .key(function (d) { return d.destination; })
+                    .rollup(function (v) {
+                        return {
+                            avg: d3.mean(v, (e) => e.price)
+                        }
+                    })
+                    .entries(cab_data);
 
+                console.log(allLocationAvgs);
 
 
                 var svg = d3.select('body')
@@ -239,8 +237,7 @@
                     .range([300, 0])
                     .domain([max_area, min_area]);
 
-                console.log(max_area)
-                console.log(min_area)
+
                 var yAxis = d3.axisBottom()
                     .scale(y)
                     .ticks(6);
@@ -333,11 +330,11 @@
                 elem.enter()
                     .append('text')
                     .transition().duration(400)
-                        .attr("dy", ".75em")
-                        .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
-                        .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
-                        .attr("class", "locText")
-                        .text((d) => loc_json.features[numToLoc[d.key]].Name)
+                    .attr("dy", ".75em")
+                    .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
+                    .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
+                    .attr("class", "locText")
+                    .text((d) => loc_json.features[numToLoc[d.key]].Name)
 
 
                 lines.append("text")
