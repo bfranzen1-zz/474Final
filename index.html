@@ -166,7 +166,16 @@
                 mean_area = d3.mean(all_prices);
                 color_scale = d3.scaleLinear().domain([min_area, mean_area, max_area - 40]).range(['green', 'beige', 'red']);
 
+                var allLocationAvgs = d3.nest()
+                    .key(function (d) { return d.destination; })
+                    .rollup(function (v) {
+                        return {
+                            avg: d3.mean(v, (e) => e.price)
+                        }
+                    })
+                    .entries(cab_data);
 
+                console.log(allLocationAvgs);
 
 
                 var svg = d3.select('body')
@@ -258,7 +267,7 @@
 
                 var locations = svg.append('g')
                     .attr('id', 'circles');
-
+                
                 locations.selectAll('circle')
                     .data(locations_json.features)
                     .enter()
@@ -277,13 +286,33 @@
                             .attr('fill', '#1f77b4')
                         d3.selectAll('circle')
                             .transition().duration(200)
-                            .style('fill', '#1f77b4')
+                            .style('fill', (d) => {
+                                var avg = getAvg(d.Name, allLocationAvgs);
+                                return color_scale(avg);
+                            })
                     })
                     .transition().duration(400)
-                    .attr('fill', '#1f77b4')
+                    .attr('fill', (d) => {
+                                var avg = getAvg(d.Name, allLocationAvgs);
+                                return color_scale(avg);
+                            })
                     .attr('r', 13)
                     .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
                     .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1]);
+
+
+            }
+
+            function getAvg(name, data) {
+                let avg = 11;
+                data.forEach((location) => {
+                    let loc = location.key;
+                    
+                    if (loc === name) {
+                        avg = location.value.avg;
+                    }
+                })
+                return avg;
             }
 
             // draws lines from origin to destination, line width is  determined by number of rides
@@ -329,11 +358,11 @@
                 elem.enter()
                     .append('text')
                     .transition().duration(400)
-                        .attr("dy", ".75em")
-                        .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
-                        .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
-                        .attr("class", "locText")
-                        .text((d) => loc_json.features[numToLoc[d.key]].Name)
+                    .attr("dy", ".75em")
+                    .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
+                    .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
+                    .attr("class", "locText")
+                    .text((d) => loc_json.features[numToLoc[d.key]].Name)
 
 
                 lines.append("text")
