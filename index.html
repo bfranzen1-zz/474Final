@@ -259,7 +259,7 @@
 
                 var locations = svg.append('g')
                     .attr('id', 'circles');
-
+                
                 locations.selectAll('circle')
                     .data(locations_json.features)
                     .enter()
@@ -277,10 +277,29 @@
                             .attr('fill', '#1f77b4')
                     })
                     .transition().duration(400)
-                    .attr('fill', '#1f77b4')
+                    .attr('fill', (d) => {
+                                var avg = getAvg(d.Name, allLocationAvgs);
+                                return color_scale(avg);
+                            })
                     .attr('r', 13)
                     .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
                     .attr('cy', (d) => albersProjection(d.geometry.coordinates)[1]);
+
+
+            }
+
+            function getAvg(name, data) {
+                let avg = 11;
+                data.forEach((location) => {
+                    let loc = location.key;
+                    
+                    if (loc === name) {
+                        console.log(loc);
+                        console.log(location.value.avg);
+                        avg = location.value.avg;
+                    }
+                })
+                return avg;
             }
 
             // draws lines from origin to destination, line width is  determined by number of rides
