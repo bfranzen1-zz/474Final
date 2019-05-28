@@ -130,6 +130,16 @@
                         }
                     })
                     .entries(data);
+
+                // Get prices isolated to be able to build gradient
+                var prices = [];
+                rides.forEach((d) => {
+                    prices.push(d.value.avg);
+                })
+                var max_area = d3.max(prices);
+                var min_area = d3.min(prices);
+                var color_scale = d3.scaleLinear().domain([min_area, max_area]).range(['green', 'red']);
+
                 // draw lines to destinations
                 lines.selectAll('line')
                     .data(rides)
@@ -139,7 +149,9 @@
                     .attr('y1', +projection(origin)[1])
                     .attr('x2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
                     .attr('y2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1])
-                    .attr('stroke', 'red')
+                    .attr('stroke', function (d) {
+                        return color_scale(d.value.avg);
+                    })
                     .attr('stroke-width', (d) => +d.value.value / 1000)
 
                 lines.append("text")
