@@ -144,7 +144,16 @@
                         .property("selected", function (d) { return d === 'All Time Data' })
                         .text(function (d) { return d; });
 
+                    var allLocationAvgs = d3.nest()
+                        .key(function (d) { return d.destination; })
+                        .rollup(function (v) {
+                            return {
+                                avg: d3.mean(v, (e) => e.price)
+                            }
+                        })
+                        .entries(cab_data);
 
+                    // build points    
                     build()
                 })
 
@@ -247,7 +256,6 @@
                 var y = d3.scaleLinear()
                     .range([300, 0])
                     .domain([max_area + 5, min_area - 5]);
-
 
                 var yAxis = d3.axisBottom()
                     .scale(y)
