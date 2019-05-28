@@ -282,6 +282,7 @@
                         d3.select('#lines').html("");
                     })
                     .append('circle')
+                    .transition().duration(400)
                     .attr('fill', '#1f77b4')
                     .attr('r', 13)
                     .attr('cx', (d) => albersProjection(d.geometry.coordinates)[0])
@@ -314,10 +315,12 @@
                     .entries(data);
 
                 // draw lines to destinations
-                lines.selectAll('line')
-                    .data(rides)
-                    .enter()
+                var elem = lines.selectAll('line').data(rides)
+
+                elem.enter()
+                    .append('g')
                     .append('line')
+                    .transition().duration(400)
                     .attr('x1', +projection(origin)[0])
                     .attr('y1', +projection(origin)[1])
                     .attr('x2', (d) => projection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0])
@@ -326,6 +329,16 @@
                         return color_scale(d.value.avg);
                     })
                     .attr('stroke-width', (d) => +d.value.value / 1000)
+
+                elem.enter()
+                    .append('text')
+                    .transition().duration(400)
+                        .attr("dy", ".75em")
+                        .attr('x', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[0] - 60)
+                        .attr('y', (d) => +albersProjection(loc_json.features[numToLoc[d.key]].geometry.coordinates)[1] - 25)
+                        .attr("class", "locText")
+                        .text((d) => loc_json.features[numToLoc[d.key]].Name)
+
 
                 lines.append("text")
                     .attr("dy", ".75em")
