@@ -265,6 +265,7 @@
                     .enter()
                     .append('g')
                     .append('circle')
+                    .attr('id', (d) => d.Name.split(" ").join(""))
                     .on('mouseover', function (d) {
                         addLines(svg, d.Name, d.geometry.coordinates, albersProjection, locations_json, this, lines)
                         d3.select(this)
@@ -275,6 +276,9 @@
                         d3.select('#lines').html("");
                         d3.select(this)
                             .attr('fill', '#1f77b4')
+                        d3.selectAll('circle')
+                            .transition().duration(200)
+                            .style('fill', '#1f77b4')
                     })
                     .transition().duration(400)
                     .attr('fill', (d) => {
@@ -319,9 +323,16 @@
                     })
                     .entries(data);
 
+                for (k in Object.keys(rides)) {
+                    d3.select('#' + rides[k].key.split(" ").join(""))
+                        .transition().duration(200)
+                        .style('fill', (d) => color_scale(rides[k].value.avg))
+                        
+                }
+
                 // draw lines to destinations
                 var elem = lines.selectAll('line').data(rides)
-
+                
                 elem.enter()
                     .append('g')
                     .append('line')
