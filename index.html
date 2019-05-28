@@ -22,6 +22,16 @@
             font: 15px sans-serif;
             fill: #1f77b4;
         }
+
+        #selectDayHolder {
+            text-align: center;
+            margin: auto;
+        }
+
+        #selectTimeHolder {
+            text-align: center;
+            margin: 10px;
+        }
     </style>
 </head>
 
@@ -29,10 +39,84 @@
     <h2>Map of North Boston</h2>
     <script>
         var cab_data;
+        var current_data;
+        var all_prices = [];
+
+        // Create scale for color gradient
+        var max_area;
+        var min_area;
+        var median;
+        var color_scale;
+
+        var daySelect = ""
+        var timeSelect = ""
+
         window.onload = function () {
+            // Append dropdown to filter by weekday
+            daySelect = d3.select("body")
+                .append("div")
+                .attr('id', 'selectDayHolder')
+                .append("text")
+                .text("Day of Week ")
+                .attr('id', 'day')
+                .append("select")
+                .attr('id', 'dropdown')
+                .on("change", function (d) {
+                    let value = d3.select(this).property("value");
+                    if (value == "All Days Data") {
+                        current_data = cab_data;
+                    } else {
+                        current_data = cab_data.filter((row) => row['Day of Week'] == value);
+                    }
+                });
+
+            // Append dropdown to filter by time of day
+            timeSelect = d3.select("body")
+                .append("div")
+                .attr('id', 'selectTimeHolder')
+                .append("text")
+                .text("Time of Day ")
+                .attr('id', 'time')
+                .append("select")
+                .attr('id', 'dropdown')
+                .on("change", function (d) {
+                    let value = d3.select(this).property("value");
+                    if (value == "All Time Data") {
+                        current_data = current_data;
+                    } else  {
+                        current_data = cab_data.filter((row) => row['Time Of Day'] == value);
+                    }
+                });
+
             d3.csv('./data/clean_cab_rides.csv')
                 .then(function (data) {
                     cab_data = data
+                    current_data = cab_data
+                    // Get prices isolated to be able to build gradient
+                    cab_data.forEach((d) => {
+                        all_prices.push(d.price);
+                    })
+
+                    // Add options to dropdowns
+                    let distinctDays = ["All Days Data", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                    daySelect.selectAll("option")
+                        .data(distinctDays)
+                        .enter()
+                        .append("option")
+                        .attr("value", function (d) { return d; })
+                        .property("selected", function (d) { return d === 'All Days Data' })
+                        .text(function (d) { return d; });
+
+                    let times = ["All Time Data", "Morning", "Afternoon", "Evening", "Night"]
+                    timeSelect.selectAll("option")
+                        .data(times)
+                        .enter()
+                        .append("option")
+                        .attr("value", function (d) { return d; })
+                        .property("selected", function (d) { return d === 'All Time Data' })
+                        .text(function (d) { return d; });
+
+
                     build()
                 })
 
@@ -46,7 +130,18 @@
                 .center([-.021, 42.353])
                 .translate([width / 2, height / 2]);
 
+
             function build() {
+
+                // Create scale for color gradient
+                max_area = d3.max(all_prices);
+                min_area = d3.min(all_prices);
+                mean_area = d3.mean(all_prices);
+                color_scale = d3.scaleLinear().domain([min_area, mean_area, max_area - 40]).range(['green', 'beige', 'red']);
+
+
+
+
                 var svg = d3.select('body')
                     .append('svg')
                     .attr('width', width)
@@ -96,7 +191,7 @@
 
                     })
                     .on('mouseout', function (d) {
-                        d3.select('text').remove();
+                        d3.select('.locText').remove();
                         d3.select('#lines').html("");
                     })
                     .append('circle')
@@ -118,7 +213,7 @@
             // from->to origin to destination
             function addLines(svg, name, origin, projection, loc_json, object, lines) {
                 // filter data based on selected location
-                data = cab_data.filter((d) => d.source == name)
+                data = current_data.filter((d) => d.source == name)
 
                 // rollup data to get sum of rides from location to destinations
                 var rides = d3.nest()
@@ -130,16 +225,7 @@
                         }
                     })
                     .entries(data);
-
-                // Get prices isolated to be able to build gradient
-                var prices = [];
-                rides.forEach((d) => {
-                    prices.push(d.value.avg);
-                })
-                var max_area = d3.max(prices);
-                var min_area = d3.min(prices);
-                var color_scale = d3.scaleLinear().domain([min_area, max_area]).range(['green', 'red']);
-
+                console.log(rides);
                 // draw lines to destinations
                 lines.selectAll('line')
                     .data(rides)
@@ -152,12 +238,14 @@
                     .attr('stroke', function (d) {
                         return color_scale(d.value.avg);
                     })
-                    .attr('stroke-width', (d) => +d.value.value / 1000)
+                    .attr('stroke-width', 10)
+                // .attr('stroke-width', (d) => +d.value.value / 1000)
 
                 lines.append("text")
                     .attr("dy", ".75em")
                     .attr("x", +albersProjection(origin)[0] - 40)
                     .attr("y", +albersProjection(origin)[1] - 25)
+                    .attr("class", "locText")
                     .text(name)
             }
         }
