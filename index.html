@@ -270,7 +270,7 @@
                     .attr("x", 150)
                     .attr("dy", "1em")
                     .style("text-anchor", "end")
-                    .text("Price Scale in Dollars");
+                    .text("Average Price in Dollars");
 
                 // draw locations using circles from cab data on map
                 var lines = svg.append('g')
@@ -326,6 +326,17 @@
                 return avg;
             }
 
+            function scaleLines(loc, data) {
+                let rideData = data.map((row) => row.value.value);
+                let rideLimits = d3.extent(rideData);
+
+                let rideMapFunc = d3.scaleLinear()
+                    .domain([rideLimits[0], rideLimits[1]])
+                    .range([3, 10]);
+
+                return rideMapFunc(loc.value.value);
+            }
+
             // draws lines from origin to destination, line width is  determined by number of rides
             // from->to origin to destination
             function addLines(svg, name, origin, projection, loc_json, object, lines) {
@@ -352,7 +363,7 @@
 
                 // draw lines to destinations
                 var elem = lines.selectAll('line').data(rides)
-                
+
                 elem.enter()
                     .append('g')
                     .append('line')
@@ -364,7 +375,7 @@
                     .attr('stroke', function (d) {
                         return color_scale(d.value.avg);
                     })
-                    .attr('stroke-width', (d) => +d.value.value / 1000)
+                    .attr('stroke-width', (d) => (scaleLines(d, rides)))
 
                 elem.enter()
                     .append('text')
