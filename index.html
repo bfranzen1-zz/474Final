@@ -536,7 +536,7 @@
           return rideMapFunc;
         }
 
-        // draws lines from origin to destination, line width is  determined by number of rides
+        // draws lines from origin to destination, line width is determined by number of rides
         // from->to origin to destination
         function addLines(
           svg,
@@ -583,8 +583,8 @@
             .append("line")
             .attr("x1", +projection(origin)[0])
             .attr("y1", +projection(origin)[1])
-            .transition()
-            .duration(400)
+            .attr('stroke-dasharray', '550, 550')
+            .attr('stroke-dashoffset', '550')
             .attr(
               "x2",
               d =>
@@ -599,6 +599,9 @@
                   loc_json.features[numToLoc[d.key]].geometry.coordinates
                 )[1]
             )
+            .transition()
+            .duration(800)
+            .attr('stroke-dashoffset', 0)
             .attr("stroke", function(d) {
               return color_scale(d.value.avg);
             })
@@ -615,14 +618,14 @@
               d =>
                 +albersProjection(
                   loc_json.features[numToLoc[d.key]].geometry.coordinates
-                )[0]
+                )[0] - 3 * loc_json.features[numToLoc[d.key]].Name.length
             )
             .attr(
               "y",
               d =>
                 +albersProjection(
                   loc_json.features[numToLoc[d.key]].geometry.coordinates
-                )[1] - 25
+                )[1] - 20
             )
             .attr("class", "locText")
             .transition()
