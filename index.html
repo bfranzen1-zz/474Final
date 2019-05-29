@@ -5,6 +5,7 @@
     <title>A D3 map</title>
     <script src='https://d3js.org/d3.v5.min.js'></script>
     <script src='js/neighborhoods.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.js'></script>
     <script src='js/locations.js'></script>
     <style>
         svg {
@@ -25,7 +26,7 @@
 
         g text {
             font: 12px sans-serif;
-            fill: #1f77b4;
+            fill: #4d7bd1;
         }
 
         #selectDayHolder {
@@ -41,6 +42,11 @@
         #loadingText {
             text-align: center;
             margin: auto;
+        }
+
+        .swatch {
+            stroke:#4d7bd1;
+            height: 100px;
         }
     </style>
 </head>
@@ -273,7 +279,7 @@
                     .call(yAxis)
                     .append("text")
                     .attr("y", 25)
-                    .attr("x", 165)
+                    .attr("x", 200)
                     .attr("dy", "1em")
                     .style("text-anchor", "end")
                     .text("Average Price in Dollars");
@@ -302,6 +308,7 @@
                     .on('mouseout', function (d) {
                         d3.selectAll('.locText').remove();
                         d3.select('#lines').html("");
+                        svg.select(".legendSizeLine").remove();
                         d3.selectAll('circle')
                             .transition().duration(200)
                             .style('fill', (d) => {
@@ -331,16 +338,16 @@
                 return avg;
             }
 
-            // properly scale lines based on average rides
-            function scaleLines(loc, data) {
+            // returns a function to scale lines using the passed data 
+            function lineScale(data) {
                 let rideData = data.map((row) => row.value.value);
                 let rideLimits = d3.extent(rideData);
 
                 let rideMapFunc = d3.scaleLinear()
                     .domain([rideLimits[0], rideLimits[1]])
                     .range([3, 10]);
-
-                return rideMapFunc(loc.value.value);
+                
+                return rideMapFunc
             }
 
             // draws lines from origin to destination, line width is  determined by number of rides
@@ -370,6 +377,7 @@
 
                 // draw lines to destinations
                 var elem = lines.selectAll('line').data(rides)
+                let l_scale = lineScale(rides)
 
                 elem.enter()
                     .append('g')
@@ -382,7 +390,7 @@
                     .attr('stroke', function (d) {
                         return color_scale(d.value.avg);
                     })
-                    .attr('stroke-width', (d) => (scaleLines(d, rides)))
+                    .attr('stroke-width', (d) => (l_scale(d.value.value)))
 
                 // draw labels for destinations over circles
                 circles.selectAll('text').data(rides).enter()
@@ -400,6 +408,25 @@
                     .attr("y", +albersProjection(origin)[1] - 25)
                     .attr("class", "locText")
                     .text(name)
+
+
+                // add legend for lines
+                svg.append("g")
+                .attr("class", "legendSizeLine")
+                .attr("transform", "translate(10, 100)");
+
+                var legendSizeLine = d3.legendSize()
+                    .scale(l_scale)
+                    .shape("line")
+                    .orient("horizontal")
+                    .title("Number of Rides")
+                    .labelWrap(30)
+                    .shapeWidth(40)
+                    .labelAlign("middle")
+                    .shapePadding(20);
+
+                svg.select(".legendSizeLine")
+                .call(legendSizeLine);
             }
         }
     </script>
