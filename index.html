@@ -413,70 +413,29 @@
             }
           }
           console.log(lyftCount, uberCount);
-          d = [];
-          for (var i = 0; i < ttData.length; i++) {
-            if (i === 1) {
-              console.log(ttData[i]);
-            }
-          }
+          let minMax = { yMin: 0, yMax: Math.max(uberCount, lyftCount) };
+          console.log(minMax);
+          let viewers = ttData.map(row =>
+            parseFloat(row["Avg. Viewers (mil)"])
+          );
 
-          console.log(ttData);
-          //   let y = ttData.map(row => parseInt(row["Year"]));
-          //   let viewers = ttData.map(row => parseFloat(row["Avg. Viewers (mil)"]));
+          var tt = lines.selectAll("tt");
 
-          //   var tt = lines.selectAll("tt");
-
-          //   tt.attr("width", 200)
-          //     .attr("height", 200)
-          //     .selectAll(".dot")
-          //     .data(ttData)
-          //     .enter()
-          //     .append("circle")
-          //     .attr("cx", d => xMap2(d.fertility_rate))
-          //     .attr("cy", d => yMap2(d.life_expectancy))
-          //     .attr("r", 1)
-          //     .attr("fill", "#4286f4");
-          //   console.log(data);
-        }
-
-        // find min and max for arrays of x and y for tool tip
-        function findMinMaxToolTip(y) {
-          // get min/max y values
-          let yMin = d3.min(y);
-          let yMax = d3.max(y);
-
-          // return formatted min/max data as an object
-          return {
-            yMin: yMin,
-            yMax: 30
-          };
+          tt.attr("width", 200)
+            .attr("height", 200)
+            .selectAll(".dot")
+            .data(ttData)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xMap2(d.fertility_rate))
+            .attr("cy", d => yMap2(d.life_expectancy))
+            .attr("r", 1)
+            .attr("fill", "#4286f4");
+          console.log(data);
         }
 
         // draw the axes and ticks
         function drawAxes(limits, x, y, svg, rangeX, rangeY) {
-          // return x value from a row of data
-          let xValue = function(d) {
-            return +d;
-          };
-
-          // function to scale x value
-          let xScale = d3
-            .scaleLinear()
-            .domain([limits.xMin, limits.xMax]) // give domain buffer room
-            .range([rangeX.min, rangeX.max]);
-
-          // xMap returns a scaled x value from a row of data
-          let xMap = function(d) {
-            return xScale(xValue(d));
-          };
-
-          // plot x-axis at bottom of SVG
-          let xAxis = d3.axisBottom().scale(xScale);
-          svg
-            .append("g")
-            .attr("transform", "translate(0, " + rangeY.max + ")")
-            .call(xAxis);
-
           // return y value from a row of data
           let yValue = function(d) {
             return +d;
@@ -502,9 +461,7 @@
 
           // return mapping and scaling functions
           return {
-            x: xMap,
             y: yMap,
-            xScale: xScale,
             yScale: yScale
           };
         }
