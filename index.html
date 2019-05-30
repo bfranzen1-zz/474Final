@@ -93,16 +93,10 @@
             .text("Day of Week ")
             .attr("id", "day")
             .append("select")
-            .attr("id", "dropdown")
+            .attr("id", "dayDropdown")
             .on("change", function(d) {
               let value = d3.select(this).property("value");
-              if (value == "All Days Data") {
-                current_data = cab_data;
-              } else {
-                current_data = cab_data.filter(
-                  row => row["Day of Week"] == value
-                );
-              }
+              applyFilter(this.id, value);
               build();
             });
 
@@ -115,16 +109,10 @@
             .text("Time of Day ")
             .attr("id", "time")
             .append("select")
-            .attr("id", "dropdown")
+            .attr("id", "timeDropdown")
             .on("change", function(d) {
               let value = d3.select(this).property("value");
-              if (value == "All Time Data") {
-                current_data = current_data;
-              } else {
-                current_data = cab_data.filter(
-                  row => row["Time Of Day"] == value
-                );
-              }
+              applyFilter(this.id, value);
               build();
             });
           cab_data = data;
@@ -207,6 +195,58 @@
           build();
         });
 
+        function applyFilter (dropdown, newFilter) {
+            if (dropdown == "dayDropdown") { //Handle case where Day filter is changed
+                var timeVal = d3.select("#timeDropdown").node().value;
+                if (timeVal == "All Time Data") { // Case that no time data filter is present
+                    if (newFilter == "All Days Data") {
+                        current_data = cab_data;
+                    } else { 
+                        current_data = cab_data.filter(
+                            row => row["Day of Week"] == newFilter
+                        );
+                    }
+                } else { // Case that there is a time data filter present, apply two filters
+                    if (newFilter == "All Days Data") {
+                        current_data = cab_data.filter(
+                            row => row["Time Of Day"] == timeVal
+                        );
+                    } else {
+                        current_data = cab_data.filter(
+                            row => row["Time Of Day"] == timeVal
+                        ).filter(
+                            row => row["Day of Week"] == newFilter
+                        );
+                    }
+                }
+            } else {
+                var dayVal = d3.select("#dayDropdown").node().value;
+                if (dayVal == "All Days Data") {
+                    if (newFilter == "All Time Data") {
+                        current_data = cab_data;
+                    } else {
+                        current_data = cab_data.filter(
+                            row => row["Time Of Day"] == newFilter
+                        );  
+                    }
+                } else {
+                    if (newFilter == "All Time Data") {
+                        current_data = cab_data.filter(
+                            row => row["Day of Week"] == dayVal
+                        );
+                    } else {
+                        current_data = cab_data.filter(
+                            row => row["Day of Week"] == dayVal
+                        ).filter(
+                            row => row["Time Of Day"] == newFilter
+                        );
+                    }
+
+                }
+            }
+            
+        }
+
         var width = 700,
           height = 580;
 
@@ -219,7 +259,7 @@
           .translate([width / 2, height / 2]);
 
         function build() {
-          d3.select("tooltip").remove();
+          d3.select(".tooltip").remove();
           d3.select("#svg").remove();
           allLocationAvgs = d3
             .nest()
