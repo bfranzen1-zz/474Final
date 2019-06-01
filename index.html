@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>A D3 map</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/neighborhoods.js"></script>
@@ -9,917 +8,923 @@
     <script src="js/locations.js"></script>
 
     <style>
-        svg {
-            padding-top: 20px;
-            display: block;
-            margin: auto;
-        }
+      svg {
+        padding-top: 20px;
+        display: block;
+        margin: auto;
+      }
 
-        /*
+      /*
         Animation CSS Code By Lokesh Suthar
         https://codepen.io/magnus16/pen/BKoRNws
         */
 
-        .cs-loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
+      .cs-loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .cs-loader-inner {
+        transform: translateY(-50%);
+        position: absolute;
+        top: 50%;
+        width: calc(100% - 200px);
+        color: #fff;
+        padding: 0 100px;
+        text-align: center;
+      }
+
+      .cs-loader-inner label {
+        font-size: 20px;
+        opacity: 0;
+        display: inline-block;
+      }
+
+      @keyframes lol {
+        0% {
+          opacity: 0;
+          transform: translateX(-300px);
         }
 
-        .cs-loader-inner {
-            transform: translateY(-50%);
-            position: absolute;
-            top: 50%;
-            width: calc(100% - 200px);
-            color: #FFF;
-            padding: 0 100px;
-            text-align: center;
+        33% {
+          opacity: 1;
+          transform: translateX(0px);
         }
 
-        .cs-loader-inner label {
-            font-size: 20px;
-            opacity: 0;
-            display: inline-block;
+        66% {
+          opacity: 1;
+          transform: translateX(0px);
         }
 
-        @keyframes lol {
-            0% {
-                opacity: 0;
-                transform: translateX(-300px);
-            }
+        100% {
+          opacity: 0;
+          transform: translateX(300px);
+        }
+      }
 
-            33% {
-                opacity: 1;
-                transform: translateX(0px);
-            }
-
-            66% {
-                opacity: 1;
-                transform: translateX(0px);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateX(300px);
-            }
+      @-webkit-keyframes lol {
+        0% {
+          opacity: 0;
+          -webkit-transform: translateX(-300px);
         }
 
-        @-webkit-keyframes lol {
-            0% {
-                opacity: 0;
-                -webkit-transform: translateX(-300px);
-            }
-
-            33% {
-                opacity: 1;
-                -webkit-transform: translateX(0px);
-            }
-
-            66% {
-                opacity: 1;
-                -webkit-transform: translateX(0px);
-            }
-
-            100% {
-                opacity: 0;
-                -webkit-transform: translateX(300px);
-            }
+        33% {
+          opacity: 1;
+          -webkit-transform: translateX(0px);
         }
 
-        .cs-loader-inner label:nth-child(6) {
-            -webkit-animation: lol 3s infinite ease-in-out;
-            animation: lol 3s infinite ease-in-out;
+        66% {
+          opacity: 1;
+          -webkit-transform: translateX(0px);
         }
 
-        .cs-loader-inner label:nth-child(5) {
-            -webkit-animation: lol 3s 100ms infinite ease-in-out;
-            animation: lol 3s 100ms infinite ease-in-out;
+        100% {
+          opacity: 0;
+          -webkit-transform: translateX(300px);
         }
+      }
 
-        .cs-loader-inner label:nth-child(4) {
-            -webkit-animation: lol 3s 200ms infinite ease-in-out;
-            animation: lol 3s 200ms infinite ease-in-out;
-        }
+      .cs-loader-inner label:nth-child(6) {
+        -webkit-animation: lol 3s infinite ease-in-out;
+        animation: lol 3s infinite ease-in-out;
+      }
 
-        .cs-loader-inner label:nth-child(3) {
-            -webkit-animation: lol 3s 300ms infinite ease-in-out;
-            animation: lol 3s 300ms infinite ease-in-out;
-        }
+      .cs-loader-inner label:nth-child(5) {
+        -webkit-animation: lol 3s 100ms infinite ease-in-out;
+        animation: lol 3s 100ms infinite ease-in-out;
+      }
 
-        .cs-loader-inner label:nth-child(2) {
-            -webkit-animation: lol 3s 400ms infinite ease-in-out;
-            animation: lol 3s 400ms infinite ease-in-out;
-        }
+      .cs-loader-inner label:nth-child(4) {
+        -webkit-animation: lol 3s 200ms infinite ease-in-out;
+        animation: lol 3s 200ms infinite ease-in-out;
+      }
 
-        .cs-loader-inner label:nth-child(1) {
-            -webkit-animation: lol 3s 500ms infinite ease-in-out;
-            animation: lol 3s 500ms infinite ease-in-out;
-        }
+      .cs-loader-inner label:nth-child(3) {
+        -webkit-animation: lol 3s 300ms infinite ease-in-out;
+        animation: lol 3s 300ms infinite ease-in-out;
+      }
 
-        rect {
-            box-shadow: 2px 2px 10px#4d7bd1;
-        }
+      .cs-loader-inner label:nth-child(2) {
+        -webkit-animation: lol 3s 400ms infinite ease-in-out;
+        animation: lol 3s 400ms infinite ease-in-out;
+      }
 
-        .contentHolder {
-            background-color: white;
-            width: 680px;
-            max-width: 500px;
-            height: 140px;
-            max-height: 30%;
-            padding: 10px;
-            margin: auto;
-            margin-top: 20px;
-            box-shadow: 4px 4px 2px #ff00bf;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-        }
+      .cs-loader-inner label:nth-child(1) {
+        -webkit-animation: lol 3s 500ms infinite ease-in-out;
+        animation: lol 3s 500ms infinite ease-in-out;
+      }
 
-        html {
-            background-color: #352384;
-        }
+      rect {
+        box-shadow: 2px 2px 10px#4d7bd1;
+      }
 
-        h2 {
-            margin-top: 10px;
-            text-align: center;
-            font: 30px;
-        }
+      .contentHolder {
+        background-color: white;
+        width: 680px;
+        max-width: 500px;
+        height: 140px;
+        max-height: 30%;
+        padding: 10px;
+        margin: auto;
+        margin-top: 20px;
+        box-shadow: 4px 4px 2px #ff00bf;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
 
-        #loadingText {
-            text-align: center;
-            margin: auto;
-        }
+      html {
+        background-color: #352384;
+      }
 
-        g text {
-            font: 12px sans-serif;
-            fill: #4d7bd1;
-        }
+      h2 {
+        margin-top: 10px;
+        text-align: center;
+        font: 30px;
+      }
 
+      #loadingText {
+        text-align: center;
+        margin: auto;
+      }
 
-        #selectDayHolder {
-            text-align: center;
-            margin: auto;
-        }
+      g text {
+        font: 12px sans-serif;
+        fill: #4d7bd1;
+      }
 
-        #selectTimeHolder {
-            text-align: center;
-            margin: 10px;
-        }
+      #selectDayHolder {
+        text-align: center;
+        margin: auto;
+      }
 
-        #loadingText {
-            text-align: center;
-            margin: auto;
-        }
+      #selectTimeHolder {
+        text-align: center;
+        margin: 10px;
+      }
 
-        .swatch {
-            stroke: #4d7bd1;
-            height: 100px;
-        }
+      #loadingText {
+        text-align: center;
+        margin: auto;
+      }
 
-        div.tooltip {
-            position: absolute;
-            text-align: center;
-            font: 12px sans-serif;
-            border: 0px;
-            border-radius: 8px;
-            pointer-events: none;
-        }
+      .swatch {
+        stroke: #4d7bd1;
+        height: 100px;
+      }
+
+      div.tooltip {
+        position: absolute;
+        text-align: center;
+        font: 12px sans-serif;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="contentHolder">
-        <h2>Map of Boston Uber/Lyft Rides</h2>
-        <div class="cs-loader">
-            <div class="cs-loader-inner">
-                <label> ●</label>
-                <label> ●</label>
-                <label> ●</label>
-                <label> ●</label>
-                <label> ●</label>
-                <label> ●</label>
-            </div>
+      <h2>Map of Boston Uber/Lyft Rides</h2>
+      <div class="cs-loader">
+        <div class="cs-loader-inner">
+          <label> ●</label>
+          <label> ●</label>
+          <label> ●</label>
+          <label> ●</label>
+          <label> ●</label>
+          <label> ●</label>
         </div>
+      </div>
     </div>
 
     <script>
-        var cab_data;
-        var current_data;
-        var allPriceAvgs = [];
-        var allLocationAvgs;
-        var svg;
+      var cab_data;
+      var current_data;
+      var allPriceAvgs = [];
+      var allLocationAvgs;
+      var svg;
 
-        // Create scale for color gradient
-        var max_area;
-        var min_area;
-        var median;
-        var color_scale;
+      // Create scale for color gradient
+      var max_area;
+      var min_area;
+      var median;
+      var color_scale;
 
-        var daySelect = "";
-        var timeSelect = "";
-        var gradientScale = "";
-        var tt = "";
-        var ttDiv = "";
+      var daySelect = "";
+      var timeSelect = "";
+      var gradientScale = "";
+      var tt = "";
+      var ttDiv = "";
 
-        window.onload = function () {
-
-            d3.select(".contentHolder").append('div')
-                .attr("id", "loadingText")
-                .append('text')
-                .text("Loading Data...")
-            d3.csv("./data/clean_cab_rides.csv").then(function (data) {
-                // Remove "Loading..." text after data loads
-                d3.select(".cs-loader").remove();
-                d3.select("#loadingText").remove();
-                // Append dropdown to filter by weekday
-                daySelect = d3
-                    .select(".contentHolder")
-                    .append("div")
-                    .attr("id", "selectDayHolder")
-                    .append("text")
-                    .text("Day of Week ")
-                    .attr("id", "day")
-                    .append("select")
-                    .attr("id", "dayDropdown")
-                    .on("change", function (d) {
-                        let value = d3.select(this).property("value");
-                        applyFilter(this.id, value);
-                        build();
-                    });
-
-                // Append dropdown to filter by time of day
-                timeSelect = d3
-                    .select(".contentHolder")
-                    .append("div")
-                    .attr("id", "selectTimeHolder")
-                    .append("text")
-                    .text("Time of Day ")
-                    .attr("id", "time")
-                    .append("select")
-                    .attr("id", "timeDropdown")
-                    .on("change", function (d) {
-                        let value = d3.select(this).property("value");
-                        applyFilter(this.id, value);
-                        build();
-                    });
-                cab_data = data;
-                current_data = cab_data;
-                // Get prices isolated to be able to build gradient
-                d3.nest()
-                    .key(function (d) {
-                        return d.destination;
-                    })
-                    .rollup(function (v) {
-                        allPriceAvgs.push(d3.mean(v, e => e.price));
-                        return {
-                            avg: d3.mean(v, e => e.price)
-                        };
-                    })
-                    .entries(current_data);
-                console.log(allPriceAvgs);
-
-                // Add options to dropdowns
-                let distinctDays = [
-                    "All Days Data",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday"
-                ];
-                daySelect
-                    .selectAll("option")
-                    .data(distinctDays)
-                    .enter()
-                    .append("option")
-                    .attr("value", function (d) {
-                        return d;
-                    })
-                    .property("selected", function (d) {
-                        return d === "All Days Data";
-                    })
-                    .text(function (d) {
-                        return d;
-                    });
-
-                let times = [
-                    "All Time Data",
-                    "Morning",
-                    "Afternoon",
-                    "Evening",
-                    "Night"
-                ];
-                timeSelect
-                    .selectAll("option")
-                    .data(times)
-                    .enter()
-                    .append("option")
-                    .attr("value", function (d) {
-                        return d;
-                    })
-                    .property("selected", function (d) {
-                        return d === "All Time Data";
-                    })
-                    .text(function (d) {
-                        return d;
-                    });
-
-                var allLocationAvgs = d3
-                    .nest()
-                    .key(function (d) {
-                        return d.destination;
-                    })
-                    .rollup(function (v) {
-                        return {
-                            avg: d3.mean(v, e => e.price)
-                        };
-                    })
-                    .entries(cab_data);
-
-                // build points
-                build();
+      window.onload = function() {
+        d3.select(".contentHolder")
+          .append("div")
+          .attr("id", "loadingText")
+          .append("text")
+          .text("Loading Data...");
+        d3.csv("./data/clean_cab_rides.csv").then(function(data) {
+          // Remove "Loading..." text after data loads
+          d3.select(".cs-loader").remove();
+          d3.select("#loadingText").remove();
+          // Append dropdown to filter by weekday
+          daySelect = d3
+            .select(".contentHolder")
+            .append("div")
+            .attr("id", "selectDayHolder")
+            .append("text")
+            .text("Day of Week ")
+            .attr("id", "day")
+            .append("select")
+            .attr("id", "dayDropdown")
+            .on("change", function(d) {
+              let value = d3.select(this).property("value");
+              applyFilter(this.id, value);
+              build();
             });
 
-            function applyFilter(dropdown, newFilter) {
-                if (dropdown == "dayDropdown") { //Handle case where Day filter is changed
-                    var timeVal = d3.select("#timeDropdown").node().value;
-                    if (timeVal == "All Time Data") { // Case that no time data filter is present
-                        if (newFilter == "All Days Data") {
-                            current_data = cab_data;
-                        } else {
-                            current_data = cab_data.filter(
-                                row => row["Day of Week"] == newFilter
-                            );
-                        }
-                    } else { // Case that there is a time data filter present, apply two filters
-                        if (newFilter == "All Days Data") {
-                            current_data = cab_data.filter(
-                                row => row["Time Of Day"] == timeVal
-                            );
-                        } else {
-                            current_data = cab_data.filter(
-                                row => row["Time Of Day"] == timeVal
-                            ).filter(
-                                row => row["Day of Week"] == newFilter
-                            );
-                        }
-                    }
-                } else {
-                    var dayVal = d3.select("#dayDropdown").node().value;
-                    if (dayVal == "All Days Data") {
-                        if (newFilter == "All Time Data") {
-                            current_data = cab_data;
-                        } else {
-                            current_data = cab_data.filter(
-                                row => row["Time Of Day"] == newFilter
-                            );
-                        }
-                    } else {
-                        if (newFilter == "All Time Data") {
-                            current_data = cab_data.filter(
-                                row => row["Day of Week"] == dayVal
-                            );
-                        } else {
-                            current_data = cab_data.filter(
-                                row => row["Day of Week"] == dayVal
-                            ).filter(
-                                row => row["Time Of Day"] == newFilter
-                            );
-                        }
+          // Append dropdown to filter by time of day
+          timeSelect = d3
+            .select(".contentHolder")
+            .append("div")
+            .attr("id", "selectTimeHolder")
+            .append("text")
+            .text("Time of Day ")
+            .attr("id", "time")
+            .append("select")
+            .attr("id", "timeDropdown")
+            .on("change", function(d) {
+              let value = d3.select(this).property("value");
+              applyFilter(this.id, value);
+              build();
+            });
+          cab_data = data;
+          current_data = cab_data;
+          // Get prices isolated to be able to build gradient
+          d3.nest()
+            .key(function(d) {
+              return d.destination;
+            })
+            .rollup(function(v) {
+              allPriceAvgs.push(d3.mean(v, e => e.price));
+              return {
+                avg: d3.mean(v, e => e.price)
+              };
+            })
+            .entries(current_data);
+          console.log(allPriceAvgs);
 
-                    }
-                }
+          // Add options to dropdowns
+          let distinctDays = [
+            "All Days Data",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ];
+          daySelect
+            .selectAll("option")
+            .data(distinctDays)
+            .enter()
+            .append("option")
+            .attr("value", function(d) {
+              return d;
+            })
+            .property("selected", function(d) {
+              return d === "All Days Data";
+            })
+            .text(function(d) {
+              return d;
+            });
 
-            }
+          let times = [
+            "All Time Data",
+            "Morning",
+            "Afternoon",
+            "Evening",
+            "Night"
+          ];
+          timeSelect
+            .selectAll("option")
+            .data(times)
+            .enter()
+            .append("option")
+            .attr("value", function(d) {
+              return d;
+            })
+            .property("selected", function(d) {
+              return d === "All Time Data";
+            })
+            .text(function(d) {
+              return d;
+            });
 
-            var width = 700,
-                height = 580;
+          var allLocationAvgs = d3
+            .nest()
+            .key(function(d) {
+              return d.destination;
+            })
+            .rollup(function(v) {
+              return {
+                avg: d3.mean(v, e => e.price)
+              };
+            })
+            .entries(cab_data);
 
-            // zoom into map to show the points we drew more clearly
-            var albersProjection = d3
-                .geoAlbers()
-                .scale(780000)
-                .rotate([71.057, 0])
-                .center([-0.021, 42.353])
-                .translate([width / 2, height / 2]);
+          // build points
+          build();
+        });
 
-            function build() {
-                //d3.select(".tooltip").remove();
-                d3.select("#svg").remove();
-                allLocationAvgs = d3
-                    .nest()
-                    .key(function (d) {
-                        return d.destination;
-                    })
-                    .rollup(function (v) {
-                        return {
-                            avg: d3.mean(v, e => e.price)
-                        };
-                    })
-                    .entries(current_data);
-
-                console.log(allLocationAvgs);
-
-                // Create scale for color gradient
-                max_area = d3.max(allPriceAvgs);
-                min_area = d3.min(allPriceAvgs);
-                mean_area = d3.mean(allPriceAvgs);
-                color_scale = d3
-                    .scaleLinear()
-                    .domain([min_area - 5, mean_area, max_area + 5])
-                    .range(["green", "beige", "red"]);
-
-                svg = d3
-                    .select("body")
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .attr("id", "svg");
-
-                svg
-                    .append("rect")
-                    .attr("width", "100%")
-                    .attr("height", "100%")
-                    .attr("fill", "lightblue");
-
-                // draw map of boston
-                var g = svg.append("g");
-
-                var geoPath = d3.geoPath().projection(albersProjection);
-
-                g.selectAll("path")
-                    .data(neighborhoods_json.features)
-                    .enter()
-                    .append("g")
-                    .append("path")
-                    .attr("fill", "#c9d3cd")
-                    .attr("d", geoPath)
-                    .style("stroke", "#fff")
-                    .style("stroke-width", "1.2");
-
-                // Add gradient scale
-                var legend = svg
-                    .append("defs")
-                    .append("svg:linearGradient")
-                    .attr("id", "gradient")
-                    .attr("x1", "0%")
-                    .attr("y1", "100%")
-                    .attr("x2", "100%")
-                    .attr("y2", "100%")
-                    .attr("spreadMethod", "pad");
-
-                legend
-                    .append("stop")
-                    .attr("offset", "0%")
-                    .attr("stop-color", "green")
-                    .attr("stop-opacity", 1);
-
-                legend
-                    .append("stop")
-                    .attr("offset", "50%")
-                    .attr("stop-color", "beige")
-                    .attr("stop-opacity", 1);
-
-                legend
-                    .append("stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", "red")
-                    .attr("stop-opacity", 1);
-
-                // legend.append("stop")
-                //     .attr("offset", "100%")
-                //     .attr("stop-color", "#084081")
-                //     .attr("stop-opacity", 1);
-
-                svg
-                    .append("rect")
-                    .attr("width", 300)
-                    .attr("height", 50 - 30)
-                    .style("fill", "url(#gradient)")
-                    .attr("transform", "translate(0,10)");
-
-                var y = d3
-                    .scaleLinear()
-                    .range([300, 0])
-                    .domain([max_area + 5, min_area - 5]);
-
-                var yAxis = d3
-                    .axisBottom()
-                    .scale(y)
-                    .ticks(6);
-
-                // add label for gradient scale
-                svg
-                    .append("g")
-                    .attr("class", "y axis")
-                    .attr("transform", "translate(0,30)")
-                    .call(yAxis)
-                    .append("text")
-                    .attr("y", 25)
-                    .attr("x", 200)
-                    .attr("dy", "1em")
-                    .style("text-anchor", "end")
-                    .text("Average Price in Dollars");
-
-                // draw locations using circles from cab data on map
-                var lines = svg.append("g").attr("id", "lines");
-
-                var locations = svg.append("g").attr("id", "circles");
-
-                ttDiv = d3
-                    .select("body")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .style("opacity", 0);
-
-                locations
-                    .selectAll("circle")
-                    .data(locations_json.features)
-                    .enter()
-                    .append("g")
-                    .append("circle")
-                    .attr("id", d => d.Name.split(" ").join(""))
-                    .attr("fill", d => {
-                        var avg = getAvg(d.Name, allLocationAvgs);
-                        return color_scale(avg);
-                    }) // add lines and change color of referenced circle
-                    .on("mouseover", function (d) {
-                        addLines(
-                            svg,
-                            d.Name,
-                            d.geometry.coordinates,
-                            albersProjection,
-                            locations_json,
-                            this,
-                            lines,
-                            locations
-                        );
-                        ttDiv.transition()
-                            .duration(200)
-                            .style("opacity", 0.99);
-                        ttDiv.html("")
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px");
-                        ttDiv.html("");
-                        tt = d3
-                            .select(".tooltip")
-                            .append("svg")
-                            .attr('width', 300)
-                            .attr('height', 300)
-                            .attr("class", "graph");
-
-
-                        addToolTip(ttDiv, d.Name);
-
-
-                        // ttDiv
-                        //     .style("background", "rgba(255, 255, 255, 0.85)")
-                        //     .style("height", "600px")
-                        //     .style("width", "600px")
-                        //     .style("box-shadow", " 0 0 5pt 3pt rgba(41, 121, 255, 0.5)");
-                        d3.select(this).style("fill", "brown");
-                    }) // remove lines/text and reset colors
-                    .on("mouseout", function (d) {
-                        d3.selectAll(".locText").remove();
-                        d3.select("#lines").html("");
-                        svg.select(".legendSizeLine").remove();
-                        d3.selectAll("circle")
-                            .transition()
-                            .duration(200)
-                            .style("fill", d => {
-                                var avg = getAvg(d.Name, allLocationAvgs);
-                                return color_scale(avg);
-                            });
-                        ttDiv
-                            .transition()
-                            .duration(500)
-                            .style("opacity", 0);
-                        ttDiv.html("");
-                    })
-                    .transition()
-                    .duration(400)
-                    .attr("r", 13)
-                    .attr("cx", d => albersProjection(d.geometry.coordinates)[0])
-                    .attr("cy", d => albersProjection(d.geometry.coordinates)[1]);
-            }
-
-            // Adds tooltip graph
-            function addToolTip(div, area) {
-                tt.html("");
-
-                // let axesLimits = findMinMax(years, viewers);
-                // // want minimum to be 0 for y
-                // axesLimits.yMin = 0;
-
-                // let funcs = drawAxes(
-                //   axesLimits,
-                //   "Year",
-                //   "Avg. Viewers (mil)",
-                //   svgBarPlot,
-                //   { min: 50, max: 650 },
-                //   { min: 50, max: 650 }
-                // )
-                ttData = current_data.filter(d => d.source == area);
-                var flags = [],
-                    lyftCount = 0,
-                    uberCount = 0,
-                    l = ttData.length,
-                    i;
-                for (i = 0; i < l; i++) {
-                    //   Tells us if object has this type of ride yet
-                    // console.log(ttData[i]);
-                    let company = ttData[i].cab_type;
-                    if (company === "Uber") {
-                        uberCount++;
-                    } else {
-                        lyftCount++;
-                    }
-                }
-                console.log(lyftCount, uberCount);
-                let yMinMax = { yMin: 0, yMax: Math.max(uberCount, lyftCount) };
-                console.log(yMinMax);
-
-                let mapFunctions = drawAxesToolTip(
-                    yMinMax,
-                    "b",
-                    tt,
-                    { min: 50, max: 200 },
-                    { min: 50, max: 200 }
+        function applyFilter(dropdown, newFilter) {
+          if (dropdown == "dayDropdown") {
+            //Handle case where Day filter is changed
+            var timeVal = d3.select("#timeDropdown").node().value;
+            if (timeVal == "All Time Data") {
+              // Case that no time data filter is present
+              if (newFilter == "All Days Data") {
+                current_data = cab_data;
+              } else {
+                current_data = cab_data.filter(
+                  row => row["Day of Week"] == newFilter
                 );
-
-                let yMap = mapFunctions.y;
-                //Lyft
-                tt.append("rect")
-                    .attr("x", 75)
-                    .attr("y", d => yMap(lyftCount))
-                    .attr("width", 50)
-                    .attr("height", d => 200 - yMap(lyftCount))
-                    .attr("fill", "#ff00bf")
-                    .style("opacity", 0.75)
-                    .style("stroke-width", 2)
-                    .style("stroke", "#352384");
-
-                // Uber
-
-                tt.append("rect")
-                    .attr("x", 126)
-                    .attr("y", d => yMap(uberCount))
-                    .attr("width", 50)
-                    .attr("height", d => 200 - yMap(uberCount))
-                    .attr("fill", "#09091a")
-                    .style("opacity", 0.75)
-                    .style("stroke-width", 2)
-                    .style("stroke", "#1fbad6");
-
-                tt.append("text")
-                    .attr("x", 81)
-                    .attr("y", 100)
-                    .style("font-size", "10pt")
-                    .style("text-align", "center")
-                    .text(lyftCount);
-
-                tt.append("text")
-                    .attr("x", 133)
-                    .attr("y", 100)
-                    .style("font-size", "10pt")
-                    .style("text-align", "center")
-                    .text(uberCount);
-
-                tt.append("text")
-                    .attr("x", 133)
-                    .attr("y", 215)
-                    .style("font-size", "10pt")
-                    .style("text-align", "center")
-                    .text("Uber");
-
-                tt.append("text")
-                    .attr("x", 81)
-                    .attr("y", 215)
-                    .style("font-color", "white")
-                    .style("font-size", "10pt")
-                    .style("text-align", "center")
-                    .text("Uber");
-
-                //   var tt = lines.selectAll("tt");
-
-                //   tt.attr("width", 200)
-                //     .attr("height", 200)
-                //     .selectAll(".dot")
-                //     .data(ttData)
-                //     .enter()
-                //     .append("circle")
-                //     .attr("cx", d => xMap2(d.fertility_rate))
-                //     .attr("cy", d => yMap2(d.life_expectancy))
-                //     .attr("r", 1)
-                //     .attr("fill", "#4286f4");
+              }
+            } else {
+              // Case that there is a time data filter present, apply two filters
+              if (newFilter == "All Days Data") {
+                current_data = cab_data.filter(
+                  row => row["Time Of Day"] == timeVal
+                );
+              } else {
+                current_data = cab_data
+                  .filter(row => row["Time Of Day"] == timeVal)
+                  .filter(row => row["Day of Week"] == newFilter);
+              }
             }
-
-            // draw the axes and ticks
-            function drawAxesToolTip(limits, y, svg, rangeX, rangeY) {
-                // return y value from a row of data
-                let yValue = function (d) {
-                    return +d;
-                };
-
-                let xValue = function (d) {return d[x];}
-
-                // function to scale y
-                let yScale = d3
-                    .scaleLinear()
-                    .domain([limits.yMax, limits.yMin]) // give domain buffer
-                    .range([rangeY.min, rangeY.max]);
-
-                let xScale = d3
-                    .scaleLinear()
-                    .domain(['Uber'])
-                    .range([rangeX.min, rangeX.max]);
-
-                let xMap = function (d) { return xScale(xValue(d));};
-
-                // yMap returns a scaled y value from a row of data
-                let yMap = function (d) {
-                    return yScale(yValue(d));
-                };
-
-                // plot y-axis at the left of SVG
-                let yAxis = d3.axisLeft().scale(yScale);
-                svg
-                    .append("g")
-                    .attr("transform", "translate(" + rangeX.min + ", 0)")
-                    .call(yAxis);
-
-                let xAxis = d3.axisBottom().scale(xScale);
-                svg
-                    .append("g")
-                    .attr("transform", "translate(0, " + rangeY.max + ")")
-                    .call(xAxis);
-
-                // return mapping and scaling functions
-                return {
-                    x: xMap,
-                    y: yMap,
-                    xScale: xScale, 
-                    yScale: yScale
-                };
+          } else {
+            var dayVal = d3.select("#dayDropdown").node().value;
+            if (dayVal == "All Days Data") {
+              if (newFilter == "All Time Data") {
+                current_data = cab_data;
+              } else {
+                current_data = cab_data.filter(
+                  row => row["Time Of Day"] == newFilter
+                );
+              }
+            } else {
+              if (newFilter == "All Time Data") {
+                current_data = cab_data.filter(
+                  row => row["Day of Week"] == dayVal
+                );
+              } else {
+                current_data = cab_data
+                  .filter(row => row["Day of Week"] == dayVal)
+                  .filter(row => row["Time Of Day"] == newFilter);
+              }
             }
+          }
+        }
 
-            // function that gets the average the a specific name location using the
-            // passed data
-            function getAvg(name, data) {
-                let avg = 11;
-                data.forEach(location => {
-                    let loc = location.key;
+        var width = 700,
+          height = 580;
 
-                    if (loc === name) {
-                        avg = location.value.avg;
-                    }
-                });
-                return avg;
-            }
+        // zoom into map to show the points we drew more clearly
+        var albersProjection = d3
+          .geoAlbers()
+          .scale(780000)
+          .rotate([71.057, 0])
+          .center([-0.021, 42.353])
+          .translate([width / 2, height / 2]);
 
-            // returns a function to scale lines using the passed data
-            function lineScale(data) {
-                let rideData = data.map(row => row.value.value);
-                let rideLimits = d3.extent(rideData);
+        function build() {
+          //d3.select(".tooltip").remove();
+          d3.select("#svg").remove();
+          allLocationAvgs = d3
+            .nest()
+            .key(function(d) {
+              return d.destination;
+            })
+            .rollup(function(v) {
+              return {
+                avg: d3.mean(v, e => e.price)
+              };
+            })
+            .entries(current_data);
 
-                let rideMapFunc = d3
-                    .scaleLinear()
-                    .domain([rideLimits[0], rideLimits[1]])
-                    .range([3, 10]);
+          console.log(allLocationAvgs);
 
-                return rideMapFunc;
-            }
+          // Create scale for color gradient
+          max_area = d3.max(allPriceAvgs);
+          min_area = d3.min(allPriceAvgs);
+          mean_area = d3.mean(allPriceAvgs);
+          color_scale = d3
+            .scaleLinear()
+            .domain([min_area - 5, mean_area, max_area + 5])
+            .range(["green", "beige", "red"]);
 
-            // draws lines from origin to destination, line width is determined by number of rides
-            // from->to origin to destination
-            function addLines(
+          svg = d3
+            .select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("id", "svg");
+
+          svg
+            .append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "lightblue");
+
+          // draw map of boston
+          var g = svg.append("g");
+
+          var geoPath = d3.geoPath().projection(albersProjection);
+
+          g.selectAll("path")
+            .data(neighborhoods_json.features)
+            .enter()
+            .append("g")
+            .append("path")
+            .attr("fill", "#c9d3cd")
+            .attr("d", geoPath)
+            .style("stroke", "#fff")
+            .style("stroke-width", "1.2");
+
+          // Add gradient scale
+          var legend = svg
+            .append("defs")
+            .append("svg:linearGradient")
+            .attr("id", "gradient")
+            .attr("x1", "0%")
+            .attr("y1", "100%")
+            .attr("x2", "100%")
+            .attr("y2", "100%")
+            .attr("spreadMethod", "pad");
+
+          legend
+            .append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "green")
+            .attr("stop-opacity", 1);
+
+          legend
+            .append("stop")
+            .attr("offset", "50%")
+            .attr("stop-color", "beige")
+            .attr("stop-opacity", 1);
+
+          legend
+            .append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "red")
+            .attr("stop-opacity", 1);
+
+          // legend.append("stop")
+          //     .attr("offset", "100%")
+          //     .attr("stop-color", "#084081")
+          //     .attr("stop-opacity", 1);
+
+          svg
+            .append("rect")
+            .attr("width", 300)
+            .attr("height", 50 - 30)
+            .style("fill", "url(#gradient)")
+            .attr("transform", "translate(0,10)");
+
+          var y = d3
+            .scaleLinear()
+            .range([300, 0])
+            .domain([max_area + 5, min_area - 5]);
+
+          var yAxis = d3
+            .axisBottom()
+            .scale(y)
+            .ticks(6);
+
+          // add label for gradient scale
+          svg
+            .append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(0,30)")
+            .call(yAxis)
+            .append("text")
+            .attr("y", 25)
+            .attr("x", 200)
+            .attr("dy", "1em")
+            .style("text-anchor", "end")
+            .text("Average Price in Dollars");
+
+          // draw locations using circles from cab data on map
+          var lines = svg.append("g").attr("id", "lines");
+
+          var locations = svg.append("g").attr("id", "circles");
+
+          ttDiv = d3
+            .select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+          locations
+            .selectAll("circle")
+            .data(locations_json.features)
+            .enter()
+            .append("g")
+            .append("circle")
+            .attr("id", d => d.Name.split(" ").join(""))
+            .attr("fill", d => {
+              var avg = getAvg(d.Name, allLocationAvgs);
+              return color_scale(avg);
+            }) // add lines and change color of referenced circle
+            .on("mouseover", function(d) {
+              addLines(
                 svg,
-                name,
-                origin,
-                projection,
-                loc_json,
-                object,
+                d.Name,
+                d.geometry.coordinates,
+                albersProjection,
+                locations_json,
+                this,
                 lines,
-                circles
-            ) {
-                // filter data based on selected location
-                data = current_data.filter(d => d.source == name);
+                locations
+              );
+              ttDiv
+                .transition()
+                .duration(200)
+                .style("opacity", 0.99);
+              ttDiv
+                .html("")
+                .style("left", d3.event.pageX + "px")
+                .style("top", d3.event.pageY - 28 + "px");
+              ttDiv.html("");
+              tt = d3
+                .select(".tooltip")
+                .append("svg")
+                .attr("width", 300)
+                .attr("height", 300)
+                .attr("class", "graph");
 
-                // rollup data to get sum of rides from location to destinations
-                var rides = d3
-                    .nest()
-                    .key(function (d) {
-                        return d.destination;
-                    })
-                    .rollup(function (v) {
-                        return {
-                            value: v.length,
-                            avg: d3.mean(v, e => e.price)
-                        };
-                    })
-                    .entries(data);
+              addToolTip(ttDiv, d.Name);
 
-                // change color of destination circles to match line
-                for (k in Object.keys(rides)) {
-                    d3.select("#" + rides[k].key.split(" ").join(""))
-                        .transition()
-                        .duration(200)
-                        .style("fill", d => color_scale(rides[k].value.avg));
-                }
+              // ttDiv
+              //     .style("background", "rgba(255, 255, 255, 0.85)")
+              //     .style("height", "600px")
+              //     .style("width", "600px")
+              //     .style("box-shadow", " 0 0 5pt 3pt rgba(41, 121, 255, 0.5)");
+              d3.select(this).style("fill", "brown");
+            }) // remove lines/text and reset colors
+            .on("mouseout", function(d) {
+              d3.selectAll(".locText").remove();
+              d3.select("#lines").html("");
+              svg.select(".legendSizeLine").remove();
+              d3.selectAll("circle")
+                .transition()
+                .duration(200)
+                .style("fill", d => {
+                  var avg = getAvg(d.Name, allLocationAvgs);
+                  return color_scale(avg);
+                });
+              ttDiv
+                .transition()
+                .duration(500)
+                .style("opacity", 0);
+              ttDiv.html("");
+            })
+            .transition()
+            .duration(400)
+            .attr("r", 13)
+            .attr("cx", d => albersProjection(d.geometry.coordinates)[0])
+            .attr("cy", d => albersProjection(d.geometry.coordinates)[1]);
+        }
 
-                // draw lines to destinations
-                var elem = lines.selectAll("line").data(rides);
-                let l_scale = lineScale(rides);
+        // Adds tooltip graph
+        function addToolTip(div, area) {
+          tt.html("");
 
-                elem
-                    .enter()
-                    .append("g")
-                    .append("line")
-                    .attr("x1", +projection(origin)[0])
-                    .attr("y1", +projection(origin)[1])
-                    .attr("stroke-dasharray", "550, 550")
-                    .attr("stroke-dashoffset", "550")
-                    .attr(
-                        "x2",
-                        d =>
-                            projection(
-                                loc_json.features[numToLoc[d.key]].geometry.coordinates
-                            )[0]
-                    )
-                    .attr(
-                        "y2",
-                        d =>
-                            projection(
-                                loc_json.features[numToLoc[d.key]].geometry.coordinates
-                            )[1]
-                    )
-                    .transition()
-                    .duration(800)
-                    .attr("stroke-dashoffset", 0)
-                    .attr("stroke", function (d) {
-                        return color_scale(d.value.avg);
-                    })
-                    .attr("stroke-width", d => l_scale(d.value.value));
+          // let axesLimits = findMinMax(years, viewers);
+          // // want minimum to be 0 for y
+          // axesLimits.yMin = 0;
 
-                // draw labels for destinations over circles
-                circles
-                    .selectAll("text")
-                    .data(rides)
-                    .enter()
-                    .append("text")
-                    .attr(
-                        "x",
-                        d =>
-                            +albersProjection(
-                                loc_json.features[numToLoc[d.key]].geometry.coordinates
-                            )[0] -
-                            3 * loc_json.features[numToLoc[d.key]].Name.length
-                    )
-                    .attr(
-                        "y",
-                        d =>
-                            +albersProjection(
-                                loc_json.features[numToLoc[d.key]].geometry.coordinates
-                            )[1] - 20
-                    )
-                    .attr("class", "locText")
-                    .transition()
-                    .duration(400)
-                    .text(d => loc_json.features[numToLoc[d.key]].Name);
-
-                // draw label for source location
-                lines
-                    .append("text")
-                    .attr("dy", ".75em")
-                    .attr("x", +albersProjection(origin)[0] - 40)
-                    .attr("y", +albersProjection(origin)[1] - 25)
-                    .attr("class", "locText")
-                    .text(name);
-
-                // add legend for lines
-                svg
-                    .append("g")
-                    .attr("class", "legendSizeLine")
-                    .attr("transform", "translate(10, 100)");
-
-                var legendSizeLine = d3
-                    .legendSize()
-                    .scale(l_scale)
-                    .shape("line")
-                    .orient("horizontal")
-                    .title("Number of Rides")
-                    .labelWrap(30)
-                    .shapeWidth(40)
-                    .labelAlign("middle")
-                    .shapePadding(20);
-
-                svg.select(".legendSizeLine").call(legendSizeLine);
+          // let funcs = drawAxes(
+          //   axesLimits,
+          //   "Year",
+          //   "Avg. Viewers (mil)",
+          //   svgBarPlot,
+          //   { min: 50, max: 650 },
+          //   { min: 50, max: 650 }
+          // )
+          ttData = current_data.filter(d => d.source == area);
+          var flags = [],
+            lyftCount = 0,
+            uberCount = 0,
+            l = ttData.length,
+            i;
+          for (i = 0; i < l; i++) {
+            //   Tells us if object has this type of ride yet
+            // console.log(ttData[i]);
+            let company = ttData[i].cab_type;
+            if (company === "Uber") {
+              uberCount++;
+            } else {
+              lyftCount++;
             }
-        };
+          }
+          console.log(lyftCount, uberCount);
+          let yMinMax = { yMin: 0, yMax: Math.max(uberCount, lyftCount) };
+          console.log(yMinMax);
+
+          let mapFunctions = drawAxesToolTip(
+            yMinMax,
+            "b",
+            tt,
+            { min: 50, max: 200 },
+            { min: 50, max: 200 }
+          );
+
+          let yMap = mapFunctions.y;
+          //Lyft
+          tt.append("rect")
+            .attr("x", 75)
+            .attr("y", d => yMap(lyftCount))
+            .attr("width", 50)
+            .attr("height", d => 200 - yMap(lyftCount))
+            .attr("fill", "#ff00bf")
+            .style("opacity", 0.75)
+            .style("stroke-width", 2)
+            .style("stroke", "#352384");
+
+          // Uber
+
+          tt.append("rect")
+            .attr("x", 126)
+            .attr("y", d => yMap(uberCount))
+            .attr("width", 50)
+            .attr("height", d => 200 - yMap(uberCount))
+            .attr("fill", "#09091a")
+            .style("opacity", 0.75)
+            .style("stroke-width", 2)
+            .style("stroke", "#1fbad6");
+
+          tt.append("text")
+            .attr("x", 81)
+            .attr("y", 100)
+            .style("font-size", "10pt")
+            .style("text-align", "center")
+            .text(lyftCount);
+
+          tt.append("text")
+            .attr("x", 133)
+            .attr("y", 100)
+            .style("font-size", "10pt")
+            .style("text-align", "center")
+            .text(uberCount);
+
+          tt.append("text")
+            .attr("x", 135)
+            .attr("y", 215)
+            .style("font-size", "10pt")
+            .style("text-align", "center")
+            .style("font-weight", "bold")
+            .text("Uber");
+
+          tt.append("text")
+            .attr("x", 91)
+            .attr("y", 215)
+            .style("font-color", "white")
+            .style("font-size", "10pt")
+            .style("text-align", "center")
+            .style("font-weight", "bold")
+            .text("Lyft");
+
+          tt.append("text")
+            .attr("transform", "translate(195, 55)rotate(90)")
+            .style("font-size", "10pt")
+            .style("font-weight", "bold")
+            .text("Total Number of Rides");
+
+          //   var tt = lines.selectAll("tt");
+
+          //   tt.attr("width", 200)
+          //     .attr("height", 200)
+          //     .selectAll(".dot")
+          //     .data(ttData)
+          //     .enter()
+          //     .append("circle")
+          //     .attr("cx", d => xMap2(d.fertility_rate))
+          //     .attr("cy", d => yMap2(d.life_expectancy))
+          //     .attr("r", 1)
+          //     .attr("fill", "#4286f4");
+        }
+
+        // draw the axes and ticks
+        function drawAxesToolTip(limits, y, svg, rangeX, rangeY) {
+          // return y value from a row of data
+          let yValue = function(d) {
+            return +d;
+          };
+
+          let xValue = function(d) {
+            return d[x];
+          };
+
+          // function to scale y
+          let yScale = d3
+            .scaleLinear()
+            .domain([limits.yMax, limits.yMin]) // give domain buffer
+            .range([rangeY.min, rangeY.max]);
+
+          let xScale = d3
+            .scaleLinear()
+            .domain(["Uber"])
+            .range([rangeX.min, rangeX.max]);
+
+          let xMap = function(d) {
+            return xScale(xValue(d));
+          };
+
+          // yMap returns a scaled y value from a row of data
+          let yMap = function(d) {
+            return yScale(yValue(d));
+          };
+
+          // plot y-axis at the left of SVG
+          let yAxis = d3.axisLeft().scale(yScale);
+          svg
+            .append("g")
+            .attr("transform", "translate(" + rangeX.min + ", 0)")
+            .call(yAxis);
+
+          let xAxis = d3.axisBottom().scale(xScale);
+          svg
+            .append("g")
+            .attr("transform", "translate(0, " + rangeY.max + ")")
+            .call(xAxis);
+
+          // return mapping and scaling functions
+          return {
+            x: xMap,
+            y: yMap,
+            xScale: xScale,
+            yScale: yScale
+          };
+        }
+
+        // function that gets the average the a specific name location using the
+        // passed data
+        function getAvg(name, data) {
+          let avg = 11;
+          data.forEach(location => {
+            let loc = location.key;
+
+            if (loc === name) {
+              avg = location.value.avg;
+            }
+          });
+          return avg;
+        }
+
+        // returns a function to scale lines using the passed data
+        function lineScale(data) {
+          let rideData = data.map(row => row.value.value);
+          let rideLimits = d3.extent(rideData);
+
+          let rideMapFunc = d3
+            .scaleLinear()
+            .domain([rideLimits[0], rideLimits[1]])
+            .range([3, 10]);
+
+          return rideMapFunc;
+        }
+
+        // draws lines from origin to destination, line width is determined by number of rides
+        // from->to origin to destination
+        function addLines(
+          svg,
+          name,
+          origin,
+          projection,
+          loc_json,
+          object,
+          lines,
+          circles
+        ) {
+          // filter data based on selected location
+          data = current_data.filter(d => d.source == name);
+
+          // rollup data to get sum of rides from location to destinations
+          var rides = d3
+            .nest()
+            .key(function(d) {
+              return d.destination;
+            })
+            .rollup(function(v) {
+              return {
+                value: v.length,
+                avg: d3.mean(v, e => e.price)
+              };
+            })
+            .entries(data);
+
+          // change color of destination circles to match line
+          for (k in Object.keys(rides)) {
+            d3.select("#" + rides[k].key.split(" ").join(""))
+              .transition()
+              .duration(200)
+              .style("fill", d => color_scale(rides[k].value.avg));
+          }
+
+          // draw lines to destinations
+          var elem = lines.selectAll("line").data(rides);
+          let l_scale = lineScale(rides);
+
+          elem
+            .enter()
+            .append("g")
+            .append("line")
+            .attr("x1", +projection(origin)[0])
+            .attr("y1", +projection(origin)[1])
+            .attr("stroke-dasharray", "550, 550")
+            .attr("stroke-dashoffset", "550")
+            .attr(
+              "x2",
+              d =>
+                projection(
+                  loc_json.features[numToLoc[d.key]].geometry.coordinates
+                )[0]
+            )
+            .attr(
+              "y2",
+              d =>
+                projection(
+                  loc_json.features[numToLoc[d.key]].geometry.coordinates
+                )[1]
+            )
+            .transition()
+            .duration(800)
+            .attr("stroke-dashoffset", 0)
+            .attr("stroke", function(d) {
+              return color_scale(d.value.avg);
+            })
+            .attr("stroke-width", d => l_scale(d.value.value));
+
+          // draw labels for destinations over circles
+          circles
+            .selectAll("text")
+            .data(rides)
+            .enter()
+            .append("text")
+            .attr(
+              "x",
+              d =>
+                +albersProjection(
+                  loc_json.features[numToLoc[d.key]].geometry.coordinates
+                )[0] -
+                3 * loc_json.features[numToLoc[d.key]].Name.length
+            )
+            .attr(
+              "y",
+              d =>
+                +albersProjection(
+                  loc_json.features[numToLoc[d.key]].geometry.coordinates
+                )[1] - 20
+            )
+            .attr("class", "locText")
+            .transition()
+            .duration(400)
+            .text(d => loc_json.features[numToLoc[d.key]].Name);
+
+          // draw label for source location
+          lines
+            .append("text")
+            .attr("dy", ".75em")
+            .attr("x", +albersProjection(origin)[0] - 40)
+            .attr("y", +albersProjection(origin)[1] - 25)
+            .attr("class", "locText")
+            .text(name);
+
+          // add legend for lines
+          svg
+            .append("g")
+            .attr("class", "legendSizeLine")
+            .attr("transform", "translate(10, 100)");
+
+          var legendSizeLine = d3
+            .legendSize()
+            .scale(l_scale)
+            .shape("line")
+            .orient("horizontal")
+            .title("Number of Rides")
+            .labelWrap(30)
+            .shapeWidth(40)
+            .labelAlign("middle")
+            .shapePadding(20);
+
+          svg.select(".legendSizeLine").call(legendSizeLine);
+        }
+      };
     </script>
-
-</body>
-
+  </body>
 </html>
