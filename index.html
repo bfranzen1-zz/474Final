@@ -132,7 +132,7 @@
             margin: auto;
             margin-top: 20px;
             box-shadow: 4px 4px 2px #ff00bf;
-            font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
         }
 
         html {
@@ -174,6 +174,15 @@
         .swatch {
             stroke: #4d7bd1;
             height: 100px;
+        }
+
+        div.tooltip {
+            position: absolute;
+            text-align: center;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -397,7 +406,7 @@
                 .translate([width / 2, height / 2]);
 
             function build() {
-                d3.select(".tooltip").remove();
+                //d3.select(".tooltip").remove();
                 d3.select("#svg").remove();
                 allLocationAvgs = d3
                     .nest()
@@ -519,13 +528,11 @@
 
                 var locations = svg.append("g").attr("id", "circles");
 
-                let ttDiv = d3
+                ttDiv = d3
                     .select("body")
                     .append("div")
                     .attr("class", "tooltip")
-                    .style("opacity", 0)
-                    .style("height", "0px")
-                    .style("width", "0px");
+                    .style("opacity", 0);
 
                 locations
                     .selectAll("circle")
@@ -549,19 +556,29 @@
                             lines,
                             locations
                         );
-
-                        addToolTip(ttDiv, d.Name);
-                        ttDiv
-                            .transition()
+                        ttDiv.transition()
                             .duration(200)
                             .style("opacity", 0.99);
-                        ttDiv
-                            .style("left", 100 + "px")
-                            .style("top", 100 + "px")
-                            .style("background", "rgba(255, 255, 255, 0.85)")
-                            .style("height", "600px")
-                            .style("width", "600px")
-                            .style("box-shadow", " 0 0 5pt 3pt rgba(41, 121, 255, 0.5)");
+                        ttDiv.html("")
+                            .style("left", (d3.event.pageX) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                        ttDiv.html("");
+                        tt = d3
+                            .select(".tooltip")
+                            .append("svg")
+                            .attr('width', 300)
+                            .attr('height', 300)
+                            .attr("class", "graph");
+
+
+                        addToolTip(ttDiv, d.Name);
+
+
+                        // ttDiv
+                        //     .style("background", "rgba(255, 255, 255, 0.85)")
+                        //     .style("height", "600px")
+                        //     .style("width", "600px")
+                        //     .style("box-shadow", " 0 0 5pt 3pt rgba(41, 121, 255, 0.5)");
                         d3.select(this).style("fill", "brown");
                     }) // remove lines/text and reset colors
                     .on("mouseout", function (d) {
@@ -579,6 +596,7 @@
                             .transition()
                             .duration(500)
                             .style("opacity", 0);
+                        ttDiv.html("");
                     })
                     .transition()
                     .duration(400)
@@ -589,7 +607,7 @@
 
             // Adds tooltip graph
             function addToolTip(div, area) {
-                d3.select("graph").remove();
+                tt.html("");
 
                 // let axesLimits = findMinMax(years, viewers);
                 // // want minimum to be 0 for y
@@ -602,7 +620,7 @@
                 //   svgBarPlot,
                 //   { min: 50, max: 650 },
                 //   { min: 50, max: 650 }
-                // );
+                // )
                 ttData = current_data.filter(d => d.source == area);
                 var flags = [],
                     lyftCount = 0,
@@ -623,29 +641,21 @@
                 let yMinMax = { yMin: 0, yMax: Math.max(uberCount, lyftCount) };
                 console.log(yMinMax);
 
-                let tt = d3
-                    .select(".tooltip")
-                    .append("svg")
-                    .attr("class", "graph");
-
                 let mapFunctions = drawAxesToolTip(
                     yMinMax,
                     "b",
                     tt,
-                    { min: 50, max: 450 },
-                    { min: 50, max: 450 }
+                    { min: 50, max: 200 },
+                    { min: 50, max: 200 }
                 );
 
                 let yMap = mapFunctions.y;
-
-                tt.attr("width", 500)
-                    .attr("height", 500)
-                    // Lyft
-                    .append("rect")
+                //Lyft
+                tt.append("rect")
                     .attr("x", 75)
                     .attr("y", d => yMap(lyftCount))
-                    .attr("width", 150)
-                    .attr("height", d => 450 - yMap(lyftCount))
+                    .attr("width", 50)
+                    .attr("height", d => 200 - yMap(lyftCount))
                     .attr("fill", "#ff00bf")
                     .style("opacity", 0.75)
                     .style("stroke-width", 2)
@@ -654,21 +664,43 @@
                 // Uber
 
                 tt.append("rect")
-                    .attr("x", 275)
+                    .attr("x", 126)
                     .attr("y", d => yMap(uberCount))
-                    .attr("width", 150)
-                    .attr("height", d => 450 - yMap(uberCount))
+                    .attr("width", 50)
+                    .attr("height", d => 200 - yMap(uberCount))
                     .attr("fill", "#09091a")
                     .style("opacity", 0.75)
                     .style("stroke-width", 2)
                     .style("stroke", "#1fbad6");
 
                 tt.append("text")
-                    .attr("x", 100)
+                    .attr("x", 81)
+                    .attr("y", 100)
+                    .style("font-size", "10pt")
+                    .style("text-align", "center")
+                    .text(lyftCount);
+
+                tt.append("text")
+                    .attr("x", 133)
                     .attr("y", 100)
                     .style("font-size", "10pt")
                     .style("text-align", "center")
                     .text(uberCount);
+
+                tt.append("text")
+                    .attr("x", 133)
+                    .attr("y", 215)
+                    .style("font-size", "10pt")
+                    .style("text-align", "center")
+                    .text("Uber");
+
+                tt.append("text")
+                    .attr("x", 81)
+                    .attr("y", 215)
+                    .style("font-color", "white")
+                    .style("font-size", "10pt")
+                    .style("text-align", "center")
+                    .text("Uber");
 
                 //   var tt = lines.selectAll("tt");
 
@@ -691,6 +723,8 @@
                     return +d;
                 };
 
+                let xValue = function (d) {return d[x];}
+
                 // function to scale y
                 let yScale = d3
                     .scaleLinear()
@@ -699,8 +733,10 @@
 
                 let xScale = d3
                     .scaleLinear()
-                    .domain([0, 0])
+                    .domain(['Uber'])
                     .range([rangeX.min, rangeX.max]);
+
+                let xMap = function (d) { return xScale(xValue(d));};
 
                 // yMap returns a scaled y value from a row of data
                 let yMap = function (d) {
@@ -722,7 +758,9 @@
 
                 // return mapping and scaling functions
                 return {
+                    x: xMap,
                     y: yMap,
+                    xScale: xScale, 
                     yScale: yScale
                 };
             }
