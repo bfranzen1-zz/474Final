@@ -403,6 +403,8 @@
         function build() {
           //d3.select(".tooltip").remove();
           d3.select("#svg").remove();
+          d3.select("#tt").remove();
+          d3.select()
           allLocationAvgs = d3
             .nest()
             .key(function(d) {
@@ -526,6 +528,7 @@
             .select("body")
             .append("div")
             .attr("class", "tooltip")
+            .attr("id", "tt")
             .style("opacity", 0);
 
           locations
@@ -557,7 +560,7 @@
               ttDiv
                 .html("")
                 .style("left", d3.event.pageX + "px")
-                .style("top", d3.event.pageY - 28 + "px");
+                .style("top", d3.event.pageY - 45 + "px");
               ttDiv.html("");
               tt = d3
                 .select(".tooltip")
@@ -631,9 +634,7 @@
               lyftCount++;
             }
           }
-          console.log(lyftCount, uberCount);
           let yMinMax = { yMin: 0, yMax: Math.max(uberCount, lyftCount) };
-          console.log(yMinMax);
 
           let mapFunctions = drawAxesToolTip(
             yMinMax,
