@@ -9,9 +9,10 @@
 
     <style>
       svg {
-        padding-top: 20px;
+        
         display: block;
         margin: auto;
+        padding-top: 20px; 
       }
 
       /*
@@ -180,6 +181,7 @@
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
+        max-width: 300px !important;
         pointer-events: none;
       }
     </style>
@@ -544,6 +546,11 @@
               return color_scale(avg);
             }) // add lines and change color of referenced circle
             .on("mouseover", function(d) {
+              var element = document.getElementById("svg");
+              var rect = element.getBoundingClientRect();
+              var x = rect.right;
+              var y = rect.bottom;
+              console.log(rect.top, rect.right, rect.bottom, rect.left); 
               addLines(
                 svg,
                 d.Name,
@@ -560,8 +567,8 @@
                 .style("opacity", 0.99);
               ttDiv
                 .html("")
-                .style("left", d3.event.pageX + "px")
-                .style("top", d3.event.pageY - 45 + "px");
+                .style("left", x - 240 + "px")
+                .style("top", y - 260 + "px");
               ttDiv.html("");
               tt = d3
                 .select(".tooltip")
